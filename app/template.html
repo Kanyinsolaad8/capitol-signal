@@ -1,0 +1,378 @@
+<title>Capitol Signal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of filing "dockets" under a sticky masthead; three views share one filter bar. */
+:root {
+  --paper: #f3f4f1; --sheet: #ffffff; --ink: #18202b; --muted: #5b6573; --rule: #d9dcd6;
+  --accent: #2f4a8a; --accent-soft: #e4e9f5;
+  --buy: #1f7a4d; --buy-soft: #dcefe4; --sell: #b23b2e; --sell-soft: #f6e1dd; --warn: #9a6a00; --warn-soft: #f6ecd2;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #11151b; --sheet: #191f27; --ink: #e6e9ee; --muted: #98a2b0; --rule: #2a323d;
+  --accent: #8fa8e6; --accent-soft: #232d43;
+  --buy: #5cc48f; --buy-soft: #173226; --sell: #ee8577; --sell-soft: #3a1f1b; --warn: #e2b44f; --warn-soft: #3a2f14;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #11151b; --sheet: #191f27; --ink: #e6e9ee; --muted: #98a2b0; --rule: #2a323d;
+  --accent: #8fa8e6; --accent-soft: #232d43;
+  --buy: #5cc48f; --buy-soft: #173226; --sell: #ee8577; --sell-soft: #3a1f1b; --warn: #e2b44f; --warn-soft: #3a2f14;
+  color-scheme: dark }
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); margin: 0 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet) }
+.wrap { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+a { color: var(--accent) }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums }
+
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--rule) }
+.mast { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-block: 12px 6px }
+h1 { font: 700 28px/1 var(--display); letter-spacing: .02em; text-transform: uppercase; margin: 0 }
+h1 span { color: var(--accent) }
+.stamp { font: 500 11.5px/1.3 var(--mono); color: var(--muted) }
+nav { display: flex; gap: 4px; padding-block: 4px 0 }
+nav button { font: 600 15px var(--display); letter-spacing: .04em; text-transform: uppercase; background: none; border: 0; color: var(--muted);
+  padding: 8px 7px 9px; border-bottom: 3px solid transparent; cursor: pointer }
+nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent) }
+
+.notice { font-size: 12.5px; color: var(--muted); padding-block: 10px; border-bottom: 1px dashed var(--rule) }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 12px }
+.filters input, .filters select { font: 14px var(--body); color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; min-width: 0 }
+.filters input { flex: 1 1 180px }
+.chk { white-space: nowrap; display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted) }
+.count { font: 12px var(--mono); color: var(--muted); padding-block: 0 8px }
+
+.list { display: grid; gap: 12px; padding-block: 0 32px }
+.docket { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; min-width: 0 }
+.dhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px }
+.tk { font: 700 26px/1 var(--display); letter-spacing: .03em }
+.co { color: var(--muted); font-size: 13.5px; flex: 1 1 160px; min-width: 0 }
+.score { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted) }
+.pips { display: flex; gap: 3px }
+.pips i { width: 10px; height: 14px; border-radius: 2px; background: var(--rule) }
+.pips i.on { background: var(--accent) }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px 14px; margin-block: 12px; padding-block: 10px; border-block: 1px solid var(--rule) }
+.fact b { display: block; font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.fact span { font: 500 15px var(--mono); font-variant-numeric: tabular-nums }
+.pos { color: var(--buy) } .neg { color: var(--sell) }
+
+.who { font-size: 13.5px; margin-block: 6px }
+.who strong { font-weight: 600 }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-block: 6px }
+.chip { font: 500 11.5px var(--body); padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent) }
+.pill { font: 700 11px var(--body); letter-spacing: .05em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; white-space: nowrap }
+.pill.Buy { background: var(--buy-soft); color: var(--buy) }
+.pill.Sell, .pill.Sell-partial { background: var(--sell-soft); color: var(--sell) }
+.pill.Exchange { background: var(--accent-soft); color: var(--accent) }
+.pill.late { background: var(--warn-soft); color: var(--warn) }
+.party { font: 700 11px var(--mono); padding: 1px 5px; border-radius: 3px; border: 1px solid currentColor }
+.party.D { color: #3563c9 } .party.R { color: #c2412f } .party.I { color: var(--muted) }
+
+.race { display: grid; gap: 5px; margin-block: 10px }
+.race-row { display: grid; grid-template-columns: 74px 1fr 64px; align-items: center; gap: 8px; font: 12px var(--mono) }
+.track { position: relative; height: 10px; background: var(--paper); border-radius: 2px }
+.track .zero { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--muted) }
+.track .bar { position: absolute; top: 0; bottom: 0; border-radius: 2px }
+.race-row .v { text-align: right }
+
+details { margin-top: 8px }
+summary { cursor: pointer; font: 600 13px var(--body); color: var(--accent) }
+.meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 16px; margin-block: 8px 2px }
+.meter { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted) }
+.meter b { font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; min-width: 74px }
+.pips i.on.data { background: var(--buy) }
+.links { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; font-size: 13.5px }
+.links small { display: block; color: var(--muted) }
+.checks { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px }
+.checks li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; font-size: 13.5px }
+.checks .mk { font: 700 13px var(--mono) }
+.checks .y { color: var(--buy) } .checks .n { color: var(--muted) }
+.checks small { color: var(--muted); display: block }
+.tbl { overflow-x: auto; margin-top: 8px }
+table { border-collapse: collapse; width: 100%; font-size: 13px }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap }
+th { font: 600 11px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+td.num, th.num { text-align: right }
+
+.trade { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 14px }
+.trade .l1 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-width: 0 }
+.trade .tkr { font: 700 20px/1 var(--display); letter-spacing: .03em }
+.trade .meta { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 14px }
+.trade .amt { font: 500 13px var(--mono); text-align: right }
+.empty { padding: 32px 0; text-align: center; color: var(--muted) }
+.test { padding-block: 4px 40px; display: grid; gap: 12px }
+.lede { font-size: 13.5px; color: var(--muted); margin: 0; max-width: 65ch }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px }
+.tile { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px }
+.tile b { font: 600 11px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+.tile .big { font: 600 clamp(17px, 4.8vw, 24px) var(--mono); font-variant-numeric: tabular-nums }
+.tile { min-width: 0 }
+.tile .sw { width: 22px; height: 4px; border-radius: 2px }
+.chart { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 8px }
+.chart svg { width: 100%; height: auto; display: block }
+h2.sub { font: 700 17px var(--display); letter-spacing: .05em; text-transform: uppercase; margin: 10px 0 0 }
+td.why { white-space: normal; min-width: 0 }
+td.why small { display: block; color: var(--muted); font-size: 12px; line-height: 1.35 }
+.rules { white-space: pre-wrap; font: 12.5px/1.5 var(--mono); color: var(--muted); margin: 8px 0 0 }
+nav { overflow-x: auto; scrollbar-width: none }
+nav button { white-space: nowrap }
+.method { font-size: 13.5px; color: var(--muted); max-width: 65ch; padding-block: 8px 40px }
+.method h2 { font: 700 18px var(--display); letter-spacing: .04em; text-transform: uppercase; color: var(--ink); margin: 16px 0 6px }
+.method p { margin: 0 0 10px }
+@media (prefers-reduced-motion: no-preference) { .docket { transition: border-color .15s } .docket:hover { border-color: var(--muted) } }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="mast">
+      <h1>Capitol <span>Signal</span></h1>
+      <div class="stamp" id="stamp"></div>
+    </div>
+    <nav role="tablist">
+      <button role="tab" id="tab-test" aria-selected="true" data-view="test">£500</button>
+      <button role="tab" id="tab-signals" aria-selected="false" data-view="signals">Signals</button>
+      <button role="tab" id="tab-trades" aria-selected="false" data-view="trades">Filings</button>
+      <button role="tab" id="tab-members" aria-selected="false" data-view="members">Members</button>
+      <button role="tab" id="tab-method" aria-selected="false" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="notice">Research aid built from public STOCK Act disclosures and Yahoo Finance analyst data. Not financial advice. Disclosures arrive up to 45 days after the trade, and amounts are reported as ranges.</p>
+  <div class="filters" id="filters">
+    <input id="q" type="search" placeholder="Search ticker, company or member" aria-label="Search">
+    <select id="chamber" aria-label="Chamber"><option value="">Both chambers</option><option>House</option><option>Senate</option></select>
+    <select id="side" aria-label="Transaction type"><option value="">Buys and sells</option><option value="Buy">Buys only</option><option value="Sell">Sells only</option></select>
+    <label class="chk" id="minwrap"><input type="checkbox" id="strong"> Political link 2+ only</label>
+  </div>
+  <div class="count" id="count"></div>
+  <section id="view-test" class="test"></section>
+  <section id="view-signals" class="list" hidden></section>
+  <section id="view-trades" class="list" hidden></section>
+  <section id="view-members" class="list" hidden></section>
+  <section id="view-method" class="method" hidden></section>
+</main>
+
+<script type="application/json" id="data">__DATA__</script>
+<script type="application/json" id="portfolio">__PORTFOLIO__</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const P = JSON.parse(document.getElementById('portfolio').textContent);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtD = iso => iso ? new Date(iso.slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'2-digit'}) : '—';
+const pct = v => v == null ? '—' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v > 0 ? '+' : ''}${Number(v).toFixed(1)}%</span>`;
+const money = v => v == null ? '—' : '$' + (v >= 1000 ? v.toLocaleString('en-US', {maximumFractionDigits: 0}) : Number(v).toFixed(2));
+const gbp = v => v == null ? '—' : '£' + Number(v).toFixed(2);
+const cons = c => c ? esc(c.replace('_', ' ')) : '—';
+const partyOf = t => esc((t.party || '?')[0]);
+const sideClass = t => t.type.startsWith('Sell') ? (t.type === 'Sell' ? 'Sell' : 'Sell-partial') : esc(t.type);
+const who = t => t.display || t.member;
+const VIEWS = ['test', 'signals', 'trades', 'members', 'method'];
+const SHOW = 80;
+
+$('#stamp').textContent = `Filings ${fmtD(D.since)} – ${fmtD(D.generated)} · ${D.trades.length} trades · updated ${new Date(D.generated).toLocaleString('en-GB', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}`;
+
+let view = 'test';
+try { const v = localStorage.getItem('cs-view'); if (VIEWS.includes(v)) view = v } catch (e) {}
+
+function filt() {
+  return { q: $('#q').value.trim().toLowerCase(), ch: $('#chamber').value, side: $('#side').value, strong: $('#strong').checked };
+}
+function tradeMatch(t, f) {
+  if (f.ch && t.chamber !== f.ch) return false;
+  if (f.side && !t.type.startsWith(f.side)) return false;
+  if (f.q && !(`${t.ticker} ${t.asset || ''} ${t.member} ${t.display || ''}`.toLowerCase().includes(f.q))) return false;
+  return true;
+}
+
+/* ---------- £500 test ---------- */
+const STRATS = [['filtered', 'Filtered', '--accent'], ['copy', 'Plain copy', '--warn'], ['sp500', 'S&P 500', '--muted']];
+
+function lineChart(hist) {
+  if (hist.length < 2) return `<p class="who">The chart starts after the second run. Day one: ${fmtD(hist[0]?.date)}.</p>`;
+  const W = 640, H = 220, L = 46, R = 12, T = 12, B = 26;
+  const vals = hist.flatMap(h => STRATS.map(([k]) => h[k]));
+  let lo = Math.min(...vals, P.start_gbp), hi = Math.max(...vals, P.start_gbp);
+  const pad = Math.max(5, (hi - lo) * 0.1); lo -= pad; hi += pad;
+  const x = i => L + i * (W - L - R) / (hist.length - 1), y = v => T + (hi - v) * (H - T - B) / (hi - lo);
+  const ticks = [lo + pad, P.start_gbp, hi - pad].filter((v, i, a) => a.findIndex(w => Math.abs(w - v) < (hi - lo) / 12) === i);
+  const grid = ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)" ${v === P.start_gbp ? 'stroke-dasharray="4 4"' : ''}/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="var(--mono)">£${v.toFixed(0)}</text>`).join('');
+  const lines = STRATS.map(([k, , c]) => `<polyline fill="none" stroke="var(${c})" stroke-width="2.2" points="${hist.map((h, i) => `${x(i)},${y(h[k])}`).join(' ')}"/><circle cx="${x(hist.length - 1)}" cy="${y(hist[hist.length - 1][k])}" r="3.5" fill="var(${c})"/>`).join('');
+  const xl = `<text x="${L}" y="${H - 6}" fill="var(--muted)" font-size="11" font-family="var(--mono)">${fmtD(hist[0].date)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="var(--mono)">${fmtD(hist[hist.length - 1].date)}</text>`;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Value of each £500 strategy over time">${grid}${lines}${xl}</svg></div>`;
+}
+
+function holdings(k) {
+  const s = P.strategies[k], pos = Object.entries(s.positions);
+  if (!pos.length) return `<p class="who">No holdings yet. Cash ${gbp(s.cash_gbp)}.</p>`;
+  return `<div class="tbl"><table><thead><tr><th>Stock</th><th>Bought</th><th class="num">Move</th><th class="num">Value</th></tr></thead><tbody>
+    ${pos.map(([t, p]) => `<tr><td class="why"><strong>${esc(t)}</strong><small>${esc(p.reason)}</small></td><td>${fmtD(p.entry_date)}</td><td class="num">${pct(p.move_pct)}</td><td class="num">${gbp(p.value_gbp)}</td></tr>`).join('')}
+    <tr><td>Cash</td><td></td><td></td><td class="num">${gbp(s.cash_gbp)}</td></tr></tbody></table></div>`;
+}
+
+function renderTest() {
+  $('#count').textContent = '';
+  if (!P || !P.history) { $('#view-test').innerHTML = '<p class="empty">The £500 test starts with the first daily run.</p>'; return; }
+  const last = P.history[P.history.length - 1];
+  const tiles = STRATS.map(([k, label, c]) => `<div class="tile"><span class="sw" style="background:var(${c})"></span><b>${esc(label)}</b><span class="big num">${gbp(last[k])}</span>${pct((last[k] / P.start_gbp - 1) * 100)}</div>`).join('');
+  const moves = ['filtered', 'copy'].flatMap(k => P.strategies[k].ledger.map(m => ({...m, k}))).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+  $('#view-test').innerHTML = `
+    <p class="lede">Paper money only. Each line models your £500 from ${fmtD(P.start_date)}, so you can see which approach you'd rather trust with the real thing. Fills use the latest close and include a 0.15% currency fee each way.</p>
+    <div class="tiles">${tiles}</div>
+    ${lineChart(P.history)}
+    <h2 class="sub">Filtered: your version</h2>${holdings('filtered')}
+    <h2 class="sub">Plain copy: Autopilot style</h2>${holdings('copy')}
+    <h2 class="sub">Recent moves</h2>
+    ${moves.length ? `<ul class="links">${moves.map(m => `<li><span class="pill ${m.action === 'BUY' ? 'Buy' : 'Sell'}">${m.action}</span> <strong>${esc(m.ticker)}</strong> · ${m.k === 'filtered' ? 'Filtered' : 'Copy'}${m.pnl_pct != null ? ' · ' + pct(m.pnl_pct) : ''}<small>${fmtD(m.date)} · ${esc(m.reason)}</small></li>`).join('')}</ul>` : '<p class="who">No moves yet.</p>'}
+    <details><summary>The rules</summary><pre class="rules">${esc(P.rules)}</pre></details>`;
+}
+
+/* ---------- signals ---------- */
+function race(c) {
+  const rows = [[c.ticker, c.since_first_buy], [c.sector_etf ? c.sector_etf + ' sector' : null, c.etf_since_first_buy], ['S&P 500', c.spy_since_first_buy]]
+    .filter(r => r[0] && r[1] != null);
+  if (!rows.length) return '';
+  const m = Math.max(10, ...rows.map(r => Math.abs(r[1])));
+  return `<div class="race" aria-label="Price move since first buy">${rows.map(([k, v]) => {
+    const w = Math.abs(v) / m * 50, left = v >= 0 ? 50 : 50 - w;
+    return `<div class="race-row"><span>${esc(k)}</span><span class="track"><span class="bar" style="left:${left}%;width:${w}%;background:var(${v >= 0 ? '--buy' : '--sell'})"></span><span class="zero"></span></span><span class="v">${pct(v)}</span></div>`;
+  }).join('')}</div>`;
+}
+
+function signalCard(c) {
+  const f = c.fund;
+  const pip = (n, cls, len) => Array.from({length: len}, (_, i) => `<i class="${i < n ? 'on ' + cls : ''}"></i>`).join('');
+  const checkList = arr => `<ul class="checks">${arr.map(k => `<li><span class="mk ${k.pass ? 'y' : 'n'}">${k.pass ? '✓' : '·'}</span><span>${esc(k.label)}<small>${esc(k.detail)}</small></span></li>`).join('')}</ul>`;
+  const billList = c.bill_links.length ? `<ul class="links">${c.bill_links.map(b => `<li><a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.bill)}</a> ${esc(b.title)}<small>${esc(b.member)} · ${esc(b.role)} · ${fmtD(b.date)} (${b.days_from_trade > 0 ? b.days_from_trade + ' days after' : -b.days_from_trade + ' days before'} the buy) · ${esc(b.why)}</small></li>`).join('')}</ul>` : '<p class="who">No backed bill touching this company or industry within 120 days of a buy.</p>';
+  const news = Object.entries(c.press_search || {});
+  const pressList = news.length ? `<p class="who">${news.map(([m, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(m)} + ${esc(f.name)}</a>`).join(' · ')}</p>` : '';
+  const peers = c.peers.length ? `<div class="tbl"><table><thead><tr><th>Peer</th><th class="num">Price</th><th class="num">Upside</th><th>Consensus</th><th class="num">Fwd P/E</th></tr></thead><tbody>
+    <tr><td><strong>${esc(c.ticker)}</strong></td><td class="num">${money(f.price)}</td><td class="num">${pct(f.upside_pct)}</td><td>${cons(f.consensus)}</td><td class="num">${f.pe_forward ? f.pe_forward.toFixed(1) : '—'}</td></tr>
+    ${c.peers.map(p => `<tr><td>${esc(p.ticker)} <span style="color:var(--muted)">${esc((p.name||'').slice(0, 22))}</span></td><td class="num">${money(p.price)}</td><td class="num">${pct(p.upside_pct)}</td><td>${cons(p.consensus)}</td><td class="num">${p.pe_forward ? p.pe_forward.toFixed(1) : '—'}</td></tr>`).join('')}
+    </tbody></table></div>` : '<p class="who">No industry peers returned by Yahoo.</p>';
+  const trades = D.trades.filter(t => t.ticker === c.ticker && t.signal);
+  return `<article class="docket">
+    <div class="dhead"><span class="tk">${esc(c.ticker)}</span><span class="co">${esc(f.name)} · ${esc(f.industry || f.sector || '')}</span></div>
+    <div class="meters"><span class="meter"><b>Political link</b><span class="pips">${pip(c.access_score, 'acc', c.access.length)}</span>${c.access_score}/${c.access.length}</span>
+      <span class="meter"><b>Data says</b><span class="pips">${pip(c.data_score, 'data', c.checks.length)}</span>${c.data_score}/${c.checks.length}</span></div>
+    <div class="who"><strong>Bought by</strong> ${c.buyers.map(esc).join(', ')}${c.sellers.length ? ` · <strong>Sold by</strong> ${c.sellers.map(esc).join(', ')}` : ''}</div>
+    ${c.committee_overlap.length ? `<div class="chips">${c.committee_overlap.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}
+    <div class="facts">
+      <div class="fact"><b>Price</b><span>${money(f.price)}</span></div>
+      <div class="fact"><b>Mean target</b><span>${money(f.target_mean)}</span></div>
+      <div class="fact"><b>Upside</b><span>${pct(f.upside_pct)}</span></div>
+      <div class="fact"><b>Consensus</b><span>${cons(f.consensus)}${f.analysts ? ` <small style="color:var(--muted)">(${esc(f.analysts)})</small>` : ''}</span></div>
+      <div class="fact"><b>EPS ttm → fwd</b><span>${esc(f.eps_trailing ?? '—')} → ${f.eps_forward != null ? f.eps_forward.toFixed(2) : '—'}</span></div>
+    </div>
+    <div class="who"><strong>Since first buy</strong> (${fmtD(c.first_buy)})</div>
+    ${race(c)}
+    <details><summary>Why they might know (${c.access_score}/${c.access.length})</summary>${checkList(c.access)}</details>
+    <details><summary>What the data says (${c.data_score}/${c.checks.length})</summary>${checkList(c.checks)}</details>
+    <details><summary>Bills (${c.bill_links.length})</summary>${billList}</details>
+    <details><summary>News search</summary>${pressList}</details>
+    <details><summary>Peer group</summary>${peers}</details>
+    <details><summary>${trades.length} filed trade${trades.length > 1 ? 's' : ''}</summary><div class="tbl"><table><thead><tr><th>Member</th><th>Type</th><th>Traded</th><th>Filed</th><th>Amount</th><th></th></tr></thead><tbody>
+      ${trades.map(t => `<tr><td>${esc(who(t))}</td><td><span class="pill ${sideClass(t)}">${esc(t.type)}</span></td><td>${fmtD(t.trade_date)}</td><td>${fmtD(t.filing_date)}</td><td class="num">${esc(t.amount)}</td><td><a href="${esc(t.source)}" target="_blank" rel="noopener">Filing</a></td></tr>`).join('')}
+    </tbody></table></div></details>
+  </article>`;
+}
+
+function renderSignals(f) {
+  let cards = D.tickers.filter(c => c.fund && c.checks && c.buy_count);
+  cards = cards.filter(c => D.trades.some(t => t.ticker === c.ticker && t.signal && tradeMatch(t, {...f, side: f.side || 'Buy'})));
+  if (f.strong) cards = cards.filter(c => c.access_score >= 2);
+  $('#count').textContent = `${cards.length} bought stocks, ranked by political link plus data` + (cards.length > SHOW ? ` · showing the top ${SHOW}` : '');
+  $('#view-signals').innerHTML = cards.slice(0, SHOW).map(signalCard).join('') || '<p class="empty">No stocks match these filters.</p>';
+}
+
+function renderTrades(f) {
+  const rows = D.trades.filter(t => tradeMatch(t, f));
+  $('#count').textContent = `${rows.length} filed trades, newest filing first` + (rows.length > 300 ? ' · showing the first 300' : '');
+  $('#view-trades').innerHTML = rows.slice(0, 300).map(t => `<article class="docket trade">
+    <div class="l1"><span class="tkr">${esc(t.ticker)}</span><span class="pill ${sideClass(t)}">${esc(t.type)}</span>
+      ${t.asset_type === 'Option' ? `<span class="pill Exchange">${esc(t.option_type || 'Option')}</span>` : ''}
+      ${t.amended ? `<span class="pill late">${t.old_news ? 'Correction to an old report' : 'Amended'}</span>` : t.late ? `<span class="pill late">Filed late · ${t.lag_days}d</span>` : ''}
+      ${t.bulk ? '<span class="pill Exchange">Bulk filing</span>' : ''}
+      <span>${esc(who(t))}</span><span class="party ${partyOf(t)}">${partyOf(t)}-${esc(t.state || '')}</span></div>
+    <div class="amt">${esc(t.amount)}</div>
+    <div class="meta"><span>Traded ${fmtD(t.trade_date)} · filed ${fmtD(t.filing_date)} (${t.lag_days}d)</span><span>${esc(t.owner)}</span>
+      <span>Since trade ${pct(t.move_since_trade)} vs S&amp;P ${pct(t.spy_since_trade)}</span>
+      ${t.relevant_committees.length ? `<span>Committee link: ${esc(t.relevant_committees.join(', '))}</span>` : ''}
+      ${t.bills.filter(b => b.strength >= 2).slice(0, 1).map(b => `<span>Bill link: <a href="${esc(b.url)}" target="_blank" rel="noopener">${esc(b.bill)}</a> (${esc(b.role.toLowerCase())}, ${esc(b.why.toLowerCase())})</span>`).join('')}
+      ${t.signal ? '' : `<span>Not scored: ${esc(t.not_scored)}</span>`}
+      <a href="${esc(t.source)}" target="_blank" rel="noopener">Source filing</a></div>
+  </article>`).join('') || '<p class="empty">No filings match these filters.</p>';
+}
+
+function renderMembers(f) {
+  const by = {};
+  D.trades.filter(t => tradeMatch(t, f)).forEach(t => {
+    const k = t.bioguide || t.member;
+    (by[k] ||= {name: who(t), party: t.party, state: t.state, chamber: t.chamber, trades: [], bio: t.bioguide}).trades.push(t);
+  });
+  const list = Object.values(by).sort((a, b) => b.trades.length - a.trades.length);
+  $('#count').textContent = `${list.length} members with filed trades`;
+  $('#view-members').innerHTML = list.map(m => {
+    const info = D.members[m.bio];
+    const buys = m.trades.filter(t => t.type === 'Buy').length, sells = m.trades.filter(t => t.type.startsWith('Sell')).length;
+    const late = m.trades.filter(t => t.late).length;
+    const comms = info ? [...new Set(info.committees.filter(c => !c.sub).map(c => c.committee + (c.role && c.role !== 'Member' ? ` (${c.role})` : '')))] : [];
+    const top = Object.entries(m.trades.reduce((a, t) => (a[t.ticker] = (a[t.ticker] || 0) + 1, a), {})).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    return `<article class="docket">
+      <div class="dhead"><span class="tk" style="font-size:22px">${esc(info?.name || m.name)}</span><span class="party ${partyOf(m)}">${partyOf(m)}-${esc(m.state || '')}</span><span class="co">${esc(m.chamber)}</span></div>
+      <div class="who num">${m.trades.length} trades · <span class="pos">${buys} buys</span> · <span class="neg">${sells} sells</span>${late ? ` · <span style="color:var(--warn)">${late} filed late</span>` : ''}</div>
+      <div class="chips">${comms.map(c => `<span class="chip">${esc(c)}</span>`).join('') || '<span class="co">Committee data not matched</span>'}</div>
+      <div class="who"><strong>Most traded</strong> ${top.map(([k, n]) => `${esc(k)} <span class="num" style="color:var(--muted)">×${n}</span>`).join(', ')}</div>
+    </article>`;
+  }).join('') || '<p class="empty">No members match these filters.</p>';
+}
+
+function renderMethod() {
+  $('#count').textContent = '';
+  $('#view-method').innerHTML = `
+  <h2>How Pelosi Tracker and Autopilot work</h2>
+  <p>Pelosi Tracker is the public face. Its team reads new congressional trade filings every morning and posts the notable ones on X, calling out trades that look like conflicts of interest. The posts build an audience.</p>
+  <p>Autopilot is the product they sell to that audience. You link your own broker (Robinhood, Webull, Public and others) through the broker's API, pick a "pilot" such as Pelosi, and set a dollar amount. When a new filing lands, Autopilot places the same trade in your account. It is a registered investment adviser and charges $100 a year per portfolio.</p>
+  <p>The weak point is timing. Filings arrive up to 45 days after the trade, and Autopilot's own reviewers put the average copy delay at about two weeks after filing. You are always buying after the politician, often after the price has moved.</p>
+  <h2>What Capitol Signal does differently</h2>
+  <p>It asks two questions about every stock a politician bought. First, why might they know something? That covers whether several of them bought it, whether a buyer sits on a committee that oversees that business, and whether a buyer backed a bill that touches the company or its industry. Second, what does the market data say today? That covers analyst consensus, the gap to the average target price, expected earnings growth, and valuation against industry peers. The £500 test then checks whether this filter beats plain copying.</p>
+  <h2>Where the data comes from</h2>
+  <p>House trades: Periodic Transaction Reports from the House Clerk. Senate trades: the Senate eFD search. Only electronic filings are read; ${D.skipped_paper_filings.length} scanned paper filings in this window were skipped and are listed below.</p>
+  <p>Committee seats: the public congress-legislators dataset. Bills: the official GovInfo bill status records, covering sponsors and co-sponsors. Prices, targets, consensus, EPS and peers: Yahoo Finance.</p>
+  <h2>What counts and what doesn't</h2>
+  <p>Only stock trades feed the scores and the £500 test. Shown in Filings but not scored: options (a bet that a price will fall can look like a buy), corrections to reports first filed before this 90-day window, and filings listing 50 or more purchases at once, which are portfolio set-ups or managed accounts rather than considered bets. When an amendment repeats a trade, only the latest version is kept, and trades marked Deleted are removed.</p>
+  <p>A bill counts when the buyer sponsored or co-sponsored it within 120 days of the trade, either side, and its title names the company or targets the company's industry directly, such as a drug pricing bill for a drug maker or a banking bill for a bank. Broad themes like AI, data centres and crypto are not scored.</p>
+  <p>News is not scored. Free news search could not reliably match a politician to a company, so each stock links to a ready-made search instead.</p>
+  <p>All of these show access or interest. None of them proves anyone traded on private information.</p>
+  <h2>Limits</h2>
+  <p>Amounts are ranges. Some members file very late. Votes are not included yet. Yahoo data is unofficial and can be missing or stale. This is a research aid, not financial advice.</p>
+  <h2>Skipped paper filings</h2>
+  <p>${D.skipped_paper_filings.map(s => `<a href="${esc(s.source)}" target="_blank" rel="noopener">${esc(s.member)} (${fmtD(s.filing_date)})</a>`).join(', ') || 'None'}</p>`;
+}
+
+function render() {
+  const f = filt();
+  VIEWS.forEach(v => {
+    $('#view-' + v).hidden = v !== view;
+    $('#tab-' + v).setAttribute('aria-selected', v === view);
+  });
+  $('#filters').hidden = view === 'method' || view === 'test';
+  $('#minwrap').hidden = view !== 'signals';
+  ({test: renderTest, signals: renderSignals, trades: renderTrades, members: renderMembers, method: renderMethod})[view](f);
+}
+document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
+  view = b.dataset.view; try { localStorage.setItem('cs-view', view) } catch (e) {} render(); window.scrollTo(0, 0);
+}));
+['q', 'chamber', 'side', 'strong'].forEach(id => $('#' + id).addEventListener('input', render));
+render();
+</script>
