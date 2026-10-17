@@ -1,0 +1,111 @@
+name: Daily update
+
+on:
+  schedule:
+    - cron: "0 7 * * 1-5"   # weekdays 07:00 UTC = 7am UK in winter (8am during British Summer Time)
+    - cron: "0 9 * * 0"     # Sundays 09:00 UTC: weekly summary of the £500 test
+  workflow_dispatch:         # lets you run it by hand from the Actions tab
+    inputs:
+      mode:
+        description: "daily (trade + alert on moves) or weekly (summary only)"
+        default: daily
+        type: choice
+        options: [daily, weekly]
+
+permissions:
+  contents: write   # save the paper portfolio after each run
+  pages: write      # publish the app
+  id-token: write
+
+concurrency:
+  group: capitol-signal
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      SITE_URL: https://kanyinsolaad8.github.io/capitol-signal/
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Reuse recent Yahoo snapshots and bill files
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/fund-*.json
+            data/bills
+          key: data-${{ github.run_id }}
+          restore-keys: data-
+
+      - name: Pick mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT";
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 0" ]; then echo "mode=weekly" >> "$GITHUB_OUTPUT";
+          else echo "mode=daily" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Read the latest filings and market data
+        run: python pipeline/build.py 90
+
+      - name: Run the £500 paper test
+        run: python pipeline/portfolio.py ${{ steps.mode.outputs.mode }}
+
+      - name: Build the app
+        run: |
+          python app/icons.py
+          python app/render.py
+
+      - name: Save the paper portfolio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/
+          git diff --cached --quiet || git commit -m "Paper portfolio: ${{ steps.mode.outputs.mode }} run $(date -u +%F)"
+          git pull --rebase --autostash
+          git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Send phone alert
+        continue-on-error: true
+        run: |
+          if [ "${{ steps.mode.outputs.mode }}" = "weekly" ]; then python pipeline/notify.py weekly; else python pipeline/notify.py moves; fi
+
+      - name: Alert on failure
+        if: failure()
+        continue-on-error: true
+        run: python pipeline/notify.py failed
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-failed:
+    needs: [update, deploy]
+    if: always() && needs.update.result == 'success' && needs.deploy.result == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert that publishing failed
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          [ -n "$NTFY_TOPIC" ] || exit 0
+          curl -sS -H "Title: Capitol Signal: publishing failed" -d "The app could not be updated today. It still shows the last good data." "https://ntfy.sh/$NTFY_TOPIC"
