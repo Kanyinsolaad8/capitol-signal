@@ -1,0 +1,5 @@
+data/
+site/
+app/capitol-signal.html
+__pycache__/
+*.pyc
