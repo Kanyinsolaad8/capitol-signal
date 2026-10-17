@@ -1,0 +1,204 @@
+{
+ "start_date": "2026-10-17",
+ "start_gbp": 500.0,
+ "fx_fee": 0.0015,
+ "slots": 5,
+ "last_run": "2026-10-17",
+ "rules": "The \u00a3500 paper test. Two strategies side by side, plus the S&P 500 as the yardstick.\n\n  copy      Autopilot-style: copy freshly filed buys (biggest reported amounts first); sell only when a\n            politician who bought it files a sale.\n  filtered  Your version: buy only when Political link >= 2 of 3 AND analysts rate it Buy/Strong Buy\n            AND the mean target is >= 15% above the price. Sell when a buyer files a sale, analysts cut\n            to Hold or worse, upside to target falls under 5% (or the target is reached), or the price\n            falls 15% below entry (stop-loss).\n  sp500     The same \u00a3500 put into the S&P 500 (SPY) on day one and left alone.\n\nPaper money only: nothing here connects to a broker. Each strategy models the same \u00a3500 so you can see which\none you'd rather have put your real \u00a3500 into. Cash is held in pounds; every buy and sell converts at that\nday's GBP/USD rate with a 0.15% currency fee (typical of UK app brokers). Fills use the latest closing price\nand fractional shares. 5 slots: each new buy uses the free cash divided by the empty slots.",
+ "seen_sources": [
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035487.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035562.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035580.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035585.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035588.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035590.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035622.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035635.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035648.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035651.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035660.pdf"
+ ],
+ "strategies": {
+  "copy": {
+   "label": "Plain copy (Autopilot style)",
+   "cash_gbp": 0.0,
+   "positions": {
+    "BHE": {
+     "shares": 1.8847297644756966,
+     "entry_price": 70.62,
+     "price": 70.62,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 100.0,
+     "buyers": [
+      "Gilbert Ray Cisneros, Jr."
+     ],
+     "reason": "Gilbert Ray Cisneros, Jr. filed a buy ($15,001 - $50,000)",
+     "value_gbp": 99.85,
+     "move_pct": 0.0
+    },
+    "ON": {
+     "shares": 1.8480924183181577,
+     "entry_price": 72.02,
+     "price": 72.02,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 100.0,
+     "buyers": [
+      "Gilbert Ray Cisneros, Jr."
+     ],
+     "reason": "Gilbert Ray Cisneros, Jr. filed a buy ($15,001 - $50,000)",
+     "value_gbp": 99.85,
+     "move_pct": 0.0
+    },
+    "CACI": {
+     "shares": 0.2166652276005172,
+     "entry_price": 614.31,
+     "price": 614.31,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 100.0,
+     "buyers": [
+      "Lisa C. McClain"
+     ],
+     "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)",
+     "value_gbp": 99.85,
+     "move_pct": 0.0
+    },
+    "OLN": {
+     "shares": 8.50476779343602,
+     "entry_price": 15.65,
+     "price": 15.65,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 100.0,
+     "buyers": [
+      "Lisa C. McClain"
+     ],
+     "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)",
+     "value_gbp": 99.85,
+     "move_pct": 0.0
+    },
+    "RIG": {
+     "shares": 23.683205688126993,
+     "entry_price": 5.62,
+     "price": 5.62,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 100.0,
+     "buyers": [
+      "Lisa C. McClain"
+     ],
+     "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)",
+     "value_gbp": 99.85,
+     "move_pct": 0.0
+    }
+   },
+   "ledger": [
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "BHE",
+     "gbp": 100.0,
+     "price": 70.62,
+     "reason": "Gilbert Ray Cisneros, Jr. filed a buy ($15,001 - $50,000)"
+    },
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "ON",
+     "gbp": 100.0,
+     "price": 72.02,
+     "reason": "Gilbert Ray Cisneros, Jr. filed a buy ($15,001 - $50,000)"
+    },
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "CACI",
+     "gbp": 100.0,
+     "price": 614.31,
+     "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)"
+    },
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "OLN",
+     "gbp": 100.0,
+     "price": 15.65,
+     "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)"
+    },
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "RIG",
+     "gbp": 100.0,
+     "price": 5.62,
+     "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)"
+    }
+   ]
+  },
+  "filtered": {
+   "label": "Your filtered version",
+   "cash_gbp": 400.0,
+   "positions": {
+    "TSM": {
+     "shares": 0.3225797144210603,
+     "entry_price": 412.61,
+     "price": 412.61,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 100.0,
+     "buyers": [
+      "Cleo Fields",
+      "Gilbert Ray Cisneros, Jr.",
+      "Rick W. Allen"
+     ],
+     "reason": "Political link 2/3, strong buy, 42% to target",
+     "target_at_entry": 584.39294,
+     "value_gbp": 99.85,
+     "move_pct": 0.0
+    }
+   },
+   "ledger": [
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "TSM",
+     "gbp": 100.0,
+     "price": 412.61,
+     "reason": "Political link 2/3, strong buy, 42% to target"
+    }
+   ]
+  },
+  "sp500": {
+   "label": "S&P 500 yardstick",
+   "cash_gbp": 0.0,
+   "positions": {
+    "SPY": {
+     "shares": 0.8719267341452586,
+     "entry_price": 763.25,
+     "price": 763.25,
+     "entry_date": "2026-10-17",
+     "cost_gbp": 500.0,
+     "buyers": [],
+     "reason": "Day-one buy",
+     "value_gbp": 499.25,
+     "move_pct": 0.0
+    }
+   },
+   "ledger": [
+    {
+     "date": "2026-10-17",
+     "action": "BUY",
+     "ticker": "SPY",
+     "gbp": 500.0,
+     "price": 763.25,
+     "reason": "Day-one buy"
+    }
+   ]
+  }
+ },
+ "history": [
+  {
+   "date": "2026-10-17",
+   "copy": 499.25,
+   "filtered": 499.85,
+   "sp500": 499.25
+  }
+ ],
+ "fx_gbpusd": 1.3329956531524658
+}
