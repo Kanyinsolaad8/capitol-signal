@@ -27,6 +27,7 @@ jobs:
     timeout-minutes: 45
     env:
       NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      SEC_CONTACT: ${{ secrets.SEC_CONTACT }}   # optional: an email the SEC can contact; switches on 8-K events
       SITE_URL: https://kanyinsolaad8.github.io/capitol-signal/
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +44,7 @@ jobs:
         with:
           path: |
             data/fund-*.json
+            data/catalysts-*.json
             data/bills
           key: data-${{ github.run_id }}
           restore-keys: data-
