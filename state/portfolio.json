@@ -176,7 +176,7 @@
      "cost_gbp": 500.0,
      "buyers": [],
      "reason": "Day-one buy",
-     "value_gbp": 499.25,
+     "value_gbp": 499.27,
      "move_pct": 0.0
     }
    },
@@ -198,7 +198,13 @@
    "copy": 499.25,
    "filtered": 499.85,
    "sp500": 499.25
+  },
+  {
+   "date": "2026-10-18",
+   "copy": 499.27,
+   "filtered": 499.85,
+   "sp500": 499.27
   }
  ],
- "fx_gbpusd": 1.3329956531524658
+ "fx_gbpusd": 1.3329423666000366
 }
