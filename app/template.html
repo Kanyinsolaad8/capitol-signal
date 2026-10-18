@@ -8,6 +8,7 @@
   --paper: #f3f4f1; --sheet: #ffffff; --ink: #18202b; --muted: #5b6573; --rule: #d9dcd6;
   --accent: #2f4a8a; --accent-soft: #e4e9f5;
   --buy: #1f7a4d; --buy-soft: #dcefe4; --sell: #b23b2e; --sell-soft: #f6e1dd; --warn: #9a6a00; --warn-soft: #f6ecd2;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -16,11 +17,13 @@
   --paper: #11151b; --sheet: #191f27; --ink: #e6e9ee; --muted: #98a2b0; --rule: #2a323d;
   --accent: #8fa8e6; --accent-soft: #232d43;
   --buy: #5cc48f; --buy-soft: #173226; --sell: #ee8577; --sell-soft: #3a1f1b; --warn: #e2b44f; --warn-soft: #3a2f14;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
   color-scheme: dark } }
 :root[data-theme="dark"] {
   --paper: #11151b; --sheet: #191f27; --ink: #e6e9ee; --muted: #98a2b0; --rule: #2a323d;
   --accent: #8fa8e6; --accent-soft: #232d43;
   --buy: #5cc48f; --buy-soft: #173226; --sell: #ee8577; --sell-soft: #3a1f1b; --warn: #e2b44f; --warn-soft: #3a2f14;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
   color-scheme: dark }
 
 * { box-sizing: border-box }
@@ -85,7 +88,7 @@ nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(-
 
 details { margin-top: 8px }
 summary { cursor: pointer; font: 600 13px var(--body); color: var(--accent) }
-.meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 16px; margin-block: 8px 2px }
+.meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 6px 16px; margin-block: 8px 2px }
 .meter { display: flex; align-items: center; gap: 8px; font: 500 12px var(--mono); color: var(--muted) }
 .meter b { font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; min-width: 74px }
 .pips i.on.data { background: var(--buy) }
@@ -116,6 +119,31 @@ td.num, th.num { text-align: right }
 .tile .big { font: 600 clamp(17px, 4.8vw, 24px) var(--mono); font-variant-numeric: tabular-nums }
 .tile { min-width: 0 }
 .tile .sw { width: 22px; height: 4px; border-radius: 2px }
+.lc { margin-block: 8px }
+.lc-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); margin-bottom: 4px }
+.lc-legend span, .lc-tip-row { display: inline-flex; align-items: center; gap: 6px }
+.lc-legend i, .lc-tip-row i { width: 14px; height: 2px; border-radius: 1px; display: inline-block }
+.lc-wrap { position: relative; touch-action: pan-y; outline: none; border-radius: 6px }
+.lc-wrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.lc-wrap svg { width: 100%; height: auto; display: block; overflow: visible }
+.lc-wrap svg > :not(.lc-hit) { pointer-events: none }
+.lc-grid { stroke: var(--rule); stroke-width: 1 } .lc-grid.base { stroke: var(--muted); stroke-dasharray: 4 4 }
+.lc-tick { fill: var(--muted); font: 11px var(--mono) }
+.lc-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round }
+.lc-end, .lc-dot { stroke: var(--sheet); stroke-width: 2 }
+.lc-hair { stroke: var(--muted); stroke-width: 1 }
+.lc-hit { cursor: crosshair }
+.lc-mark circle { stroke: var(--sheet); stroke-width: 2 } .lc-mark text { font: 700 9px var(--body); fill: #fff; pointer-events: none }
+.lc-mark.buy circle { fill: var(--buy) } .lc-mark.sell circle { fill: var(--sell) }
+.lc-tip { position: absolute; top: 0; background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 8px; font-size: 12px; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.12); min-width: 120px; max-width: 220px }
+.lc-tip-date { color: var(--muted); font: 11px var(--mono); margin-bottom: 2px }
+.lc-tip-row b { font: 600 12.5px var(--mono); color: var(--ink) } .lc-tip-row span { color: var(--muted) }
+.lc-tip-note { color: var(--ink); font-size: 11.5px; margin-top: 3px; border-top: 1px dashed var(--rule); padding-top: 3px }
+tr.pos-row { cursor: pointer } tr.pos-row:hover td { background: var(--paper) }
+tr.pos-row td.why::before { content: "▸ "; color: var(--accent) } tr.pos-row.open td.why::before { content: "▾ " }
+tr.pos-detail td { white-space: normal; background: var(--paper) }
+.cat-grid { display: grid; gap: 10px; margin-top: 8px }
+.cat-grid h4 { font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px }
 .chart { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 8px }
 .chart svg { width: 100%; height: auto; display: block }
 h2.sub { font: 700 17px var(--display); letter-spacing: .05em; text-transform: uppercase; margin: 10px 0 0 }
@@ -170,7 +198,7 @@ const P = JSON.parse(document.getElementById('portfolio').textContent);
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtD = iso => iso ? new Date(iso.slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'2-digit'}) : '—';
-const pct = v => v == null ? '—' : `<span class="${v >= 0 ? 'pos' : 'neg'}">${v > 0 ? '+' : ''}${Number(v).toFixed(1)}%</span>`;
+const pct = v => { if (v == null) return '—'; const r = Math.round(v * 10) / 10; return r === 0 ? '<span>0.0%</span>' : `<span class="${r > 0 ? 'pos' : 'neg'}">${r > 0 ? '+' : ''}${r.toFixed(1)}%</span>`; };
 const money = v => v == null ? '—' : '$' + (v >= 1000 ? v.toLocaleString('en-US', {maximumFractionDigits: 0}) : Number(v).toFixed(2));
 const gbp = v => v == null ? '—' : '£' + Number(v).toFixed(2);
 const cons = c => c ? esc(c.replace('_', ' ')) : '—';
@@ -195,28 +223,116 @@ function tradeMatch(t, f) {
   return true;
 }
 
-/* ---------- £500 test ---------- */
-const STRATS = [['filtered', 'Filtered', '--accent'], ['copy', 'Plain copy', '--warn'], ['sp500', 'S&P 500', '--muted']];
+/* ---------- interactive line charts (tap or hover for values; arrow keys when focused) ---------- */
+const CHARTS = {};
+let chartSeq = 0;
+function chartSlot(spec) { const id = 'c' + (++chartSeq); CHARTS[id] = spec; return `<div class="lc" data-chart="${id}"></div>`; }
+function mountCharts(root) { root.querySelectorAll('.lc[data-chart]').forEach(el => { const s = CHARTS[el.dataset.chart]; if (s && !el.dataset.done && el.clientWidth > 0) { el.dataset.done = 1; drawChart(el, s); } }); }
+function resetCharts() { for (const k in CHARTS) delete CHARTS[k]; }
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function niceTicks(lo, hi, n) {
+  const step0 = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(step0 || 1))), r = step0 / mag;
+  const step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 5 ? 5 : 10) * mag, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+/* spec: {dates:[iso], series:[{name, color, values:[num|null]}], fmt:v=>str, markers:[{i, label, kind}], title} */
+function drawChart(el, spec) {
+  const W = Math.max(300, Math.round(el.clientWidth) || 640), H = Math.round(Math.min(240, Math.max(170, W * 0.42))), L = 50, R = 12, T = 12, B = 24, n = spec.dates.length;
+  const all = spec.series.flatMap(s => s.values).filter(v => v != null);
+  if (n < 2 || !all.length) { el.innerHTML = '<p class="who">Not enough data for a chart yet.</p>'; return; }
+  let lo = Math.min(...all), hi = Math.max(...all);
+  if (spec.baseline != null) { lo = Math.min(lo, spec.baseline); hi = Math.max(hi, spec.baseline); }
+  const pad = Math.max((hi - lo) * 0.08, Math.abs(hi) * 0.002, 0.5); lo -= pad; hi += pad;
+  const x = i => L + i * (W - L - R) / (n - 1), y = v => T + (hi - v) * (H - T - B) / (hi - lo);
+  const legend = document.createElement('div'); legend.className = 'lc-legend';
+  spec.series.forEach(s => { const k = document.createElement('span'); const sw = document.createElement('i'); sw.style.background = `var(${s.color})`; k.append(sw, document.createTextNode(s.name)); legend.append(k); });
+  const svg = svgEl('svg', {viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.title || 'Line chart'});
+  niceTicks(lo, hi, 3).forEach(v => {
+    svg.append(svgEl('line', {x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'lc-grid' + (v === spec.baseline ? ' base' : '')}));
+    const t = svgEl('text', {x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'lc-tick'}); t.textContent = spec.fmt(v); svg.append(t);
+  });
+  if (spec.baseline != null && !niceTicks(lo, hi, 3).includes(spec.baseline)) svg.append(svgEl('line', {x1: L, x2: W - R, y1: y(spec.baseline), y2: y(spec.baseline), class: 'lc-grid base'}));
+  [[0, 'start'], [n - 1, 'end']].forEach(([i, a]) => { const t = svgEl('text', {x: x(i), y: H - 6, 'text-anchor': a, class: 'lc-tick'}); t.textContent = fmtD(spec.dates[i]); svg.append(t); });
+  spec.series.forEach(s => {
+    let d = '', pen = false;
+    s.values.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(v).toFixed(1); pen = true; });
+    svg.append(svgEl('path', {d, class: 'lc-line', style: `stroke:var(${s.color})`}));
+    const li = s.values.map((v, i) => v == null ? -1 : i).filter(i => i >= 0).pop();
+    if (li != null) svg.append(svgEl('circle', {cx: x(li), cy: y(s.values[li]), r: 4, class: 'lc-end', style: `fill:var(${s.color})`}));
+  });
+  const main = spec.series[0].values;
+  (spec.markers || []).forEach(m => {
+    if (main[m.i] == null) return;
+    const g = svgEl('g', {class: 'lc-mark ' + m.kind});
+    g.append(svgEl('circle', {cx: x(m.i), cy: y(main[m.i]), r: 7}));
+    const t = svgEl('text', {x: x(m.i), y: y(main[m.i]) + 3.5, 'text-anchor': 'middle'}); t.textContent = m.kind === 'buy' ? 'B' : 'S';
+    g.append(t); svg.append(g);
+  });
+  const hair = svgEl('line', {y1: T, y2: H - B, class: 'lc-hair', visibility: 'hidden'}); svg.append(hair);
+  const dots = spec.series.map(s => { const c = svgEl('circle', {r: 4.5, class: 'lc-dot', style: `fill:var(${s.color})`, visibility: 'hidden'}); svg.append(c); return c; });
+  const hit = svgEl('rect', {x: L, y: 0, width: W - L - R, height: H, fill: 'transparent', class: 'lc-hit'}); svg.append(hit);
+  const tip = document.createElement('div'); tip.className = 'lc-tip'; tip.hidden = true;
+  const wrap = document.createElement('div'); wrap.className = 'lc-wrap'; wrap.tabIndex = 0; wrap.append(svg, tip);
+  wrap.setAttribute('aria-label', (spec.title || 'Chart') + '. Use left and right arrow keys to read values.');
+  let cur = n - 1;
+  function show(i) {
+    cur = Math.max(0, Math.min(n - 1, i));
+    hair.setAttribute('x1', x(cur)); hair.setAttribute('x2', x(cur)); hair.setAttribute('visibility', 'visible');
+    tip.replaceChildren();
+    const h = document.createElement('div'); h.className = 'lc-tip-date'; h.textContent = fmtD(spec.dates[cur]); tip.append(h);
+    spec.series.forEach((s, k) => {
+      const v = s.values[cur];
+      if (v == null) { dots[k].setAttribute('visibility', 'hidden'); return; }
+      dots[k].setAttribute('cx', x(cur)); dots[k].setAttribute('cy', y(v)); dots[k].setAttribute('visibility', 'visible');
+      const row = document.createElement('div'); row.className = 'lc-tip-row';
+      const key = document.createElement('i'); key.style.background = `var(${s.color})`;
+      const val = document.createElement('b'); val.textContent = spec.fmt(v);
+      const nm = document.createElement('span'); nm.textContent = s.name;
+      row.append(key, val, nm); tip.append(row);
+    });
+    (spec.markers || []).filter(m => m.i === cur).forEach(m => { const r = document.createElement('div'); r.className = 'lc-tip-note'; r.textContent = m.label; tip.append(r); });
+    tip.hidden = false;
+    const px = x(cur) / W * wrap.clientWidth;
+    tip.style.left = Math.min(Math.max(px - tip.offsetWidth / 2, 0), wrap.clientWidth - tip.offsetWidth) + 'px';
+  }
+  function hide() { hair.setAttribute('visibility', 'hidden'); dots.forEach(d => d.setAttribute('visibility', 'hidden')); tip.hidden = true; }
+  function fromEvent(e) { const r = svg.getBoundingClientRect(); const sx = (e.clientX - r.left) / r.width * W; return Math.round((sx - L) / (W - L - R) * (n - 1)); }
+  hit.addEventListener('pointermove', e => show(fromEvent(e)));
+  hit.addEventListener('pointerdown', e => show(fromEvent(e)));
+  hit.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') hide(); });
+  wrap.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') { show(cur - 1); e.preventDefault(); } if (e.key === 'ArrowRight') { show(cur + 1); e.preventDefault(); } if (e.key === 'Escape') hide(); });
+  wrap.addEventListener('focus', () => show(cur));
+  wrap.addEventListener('blur', hide);
+  el.replaceChildren(legend, wrap);
+}
 
-function lineChart(hist) {
+/* ---------- £500 test ---------- */
+const STRATS = [['filtered', 'Filtered', '--s1'], ['copy', 'Plain copy', '--s2'], ['sp500', 'S&P 500', '--s3']];
+
+function strategyChart(hist) {
   if (hist.length < 2) return `<p class="who">The chart starts after the second run. Day one: ${fmtD(hist[0]?.date)}.</p>`;
-  const W = 640, H = 220, L = 46, R = 12, T = 12, B = 26;
-  const vals = hist.flatMap(h => STRATS.map(([k]) => h[k]));
-  let lo = Math.min(...vals, P.start_gbp), hi = Math.max(...vals, P.start_gbp);
-  const pad = Math.max(5, (hi - lo) * 0.1); lo -= pad; hi += pad;
-  const x = i => L + i * (W - L - R) / (hist.length - 1), y = v => T + (hi - v) * (H - T - B) / (hi - lo);
-  const ticks = [lo + pad, P.start_gbp, hi - pad].filter((v, i, a) => a.findIndex(w => Math.abs(w - v) < (hi - lo) / 12) === i);
-  const grid = ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)" ${v === P.start_gbp ? 'stroke-dasharray="4 4"' : ''}/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="var(--mono)">£${v.toFixed(0)}</text>`).join('');
-  const lines = STRATS.map(([k, , c]) => `<polyline fill="none" stroke="var(${c})" stroke-width="2.2" points="${hist.map((h, i) => `${x(i)},${y(h[k])}`).join(' ')}"/><circle cx="${x(hist.length - 1)}" cy="${y(hist[hist.length - 1][k])}" r="3.5" fill="var(${c})"/>`).join('');
-  const xl = `<text x="${L}" y="${H - 6}" fill="var(--muted)" font-size="11" font-family="var(--mono)">${fmtD(hist[0].date)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="var(--mono)">${fmtD(hist[hist.length - 1].date)}</text>`;
-  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Value of each £500 strategy over time">${grid}${lines}${xl}</svg></div>`;
+  return chartSlot({title: 'Value of each £500 line', dates: hist.map(h => h.date), baseline: P.start_gbp,
+    fmt: v => '£' + v.toFixed(v >= 1000 ? 0 : 2), series: STRATS.map(([k, label, c]) => ({name: label, color: c, values: hist.map(h => h[k])}))});
+}
+
+function positionChart(p) {
+  const spy = P.strategies.sp500.positions.SPY, sh = new Map((spy && spy.history || []).map(([d, v]) => [d, v]));
+  const hist = (p.history || [[p.entry_date, p.entry_price]]);
+  if (hist.length < 2) return '<p class="who">The price line starts after the next daily run.</p>';
+  const base = hist[0][1], sbase = sh.get(hist[0][0]);
+  return chartSlot({title: 'Move since bought', dates: hist.map(h => h[0]), baseline: 0, fmt: v => (v > 0 ? '+' : '') + v.toFixed(1) + '%',
+    series: [{name: 'This holding', color: '--s1', values: hist.map(h => (h[1] / base - 1) * 100)},
+             {name: 'S&P 500', color: '--s3', values: hist.map(h => sh.has(h[0]) && sbase ? (sh.get(h[0]) / sbase - 1) * 100 : null)}]});
 }
 
 function holdings(k) {
   const s = P.strategies[k], pos = Object.entries(s.positions);
   if (!pos.length) return `<p class="who">No holdings yet. Cash ${gbp(s.cash_gbp)}.</p>`;
   return `<div class="tbl"><table><thead><tr><th>Stock</th><th>Bought</th><th class="num">Move</th><th class="num">Value</th></tr></thead><tbody>
-    ${pos.map(([t, p]) => `<tr><td class="why"><strong>${esc(t)}</strong><small>${esc(p.reason)}</small></td><td>${fmtD(p.entry_date)}</td><td class="num">${pct(p.move_pct)}</td><td class="num">${gbp(p.value_gbp)}</td></tr>`).join('')}
+    ${pos.map(([t, p]) => `<tr class="pos-row" tabindex="0" aria-expanded="false"><td class="why"><strong>${esc(t)}</strong><small>${esc(p.reason)}</small></td><td>${fmtD(p.entry_date)}</td><td class="num">${pct(p.move_pct)}</td><td class="num">${gbp(p.value_gbp)}</td></tr>
+    <tr class="pos-detail" hidden><td colspan="4">${positionChart(p)}<small>Bought at $${Number(p.entry_price).toFixed(2)} · now $${Number(p.price).toFixed(2)}${p.target_at_entry ? ' · analyst target at entry $' + Number(p.target_at_entry).toFixed(2) : ''}</small></td></tr>`).join('')}
     <tr><td>Cash</td><td></td><td></td><td class="num">${gbp(s.cash_gbp)}</td></tr></tbody></table></div>`;
 }
 
@@ -229,12 +345,23 @@ function renderTest() {
   $('#view-test').innerHTML = `
     <p class="lede">Paper money only. Each line models your £500 from ${fmtD(P.start_date)}, so you can see which approach you'd rather trust with the real thing. Fills use the latest close and include a 0.15% currency fee each way.</p>
     <div class="tiles">${tiles}</div>
-    ${lineChart(P.history)}
+    ${strategyChart(P.history)}
+    ${(P.archived || []).length ? `<p class="who">Restarted on ${fmtD(P.start_date)} with new rules. ${P.archived.map(a => `Earlier run from ${fmtD(a.start_date)} ended at Filtered ${gbp(a.end.filtered)}, Copy ${gbp(a.end.copy)}, S&amp;P ${gbp(a.end.sp500)}.`).join(' ')}</p>` : ''}
+    <p class="who">Tap a holding to see its price line.</p>
     <h2 class="sub">Filtered: your version</h2>${holdings('filtered')}
     <h2 class="sub">Plain copy: Autopilot style</h2>${holdings('copy')}
     <h2 class="sub">Recent moves</h2>
     ${moves.length ? `<ul class="links">${moves.map(m => `<li><span class="pill ${m.action === 'BUY' ? 'Buy' : 'Sell'}">${m.action}</span> <strong>${esc(m.ticker)}</strong> · ${m.k === 'filtered' ? 'Filtered' : 'Copy'}${m.pnl_pct != null ? ' · ' + pct(m.pnl_pct) : ''}<small>${fmtD(m.date)} · ${esc(m.reason)}</small></li>`).join('')}</ul>` : '<p class="who">No moves yet.</p>'}
     <details><summary>The rules</summary><pre class="rules">${esc(P.rules)}</pre></details>`;
+  mountCharts($('#view-test'));
+}
+$('#view-test').addEventListener('click', e => togglePos(e.target.closest('tr.pos-row')));
+$('#view-test').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.pos-row')) { e.preventDefault(); togglePos(e.target); } });
+function togglePos(row) {
+  if (!row) return;
+  const det = row.nextElementSibling, open = det.hidden;
+  det.hidden = !open; row.classList.toggle('open', open); row.setAttribute('aria-expanded', open);
+  if (open) mountCharts(det);
 }
 
 /* ---------- signals ---------- */
@@ -261,6 +388,8 @@ function signalCard(c) {
     ${c.peers.map(p => `<tr><td>${esc(p.ticker)} <span style="color:var(--muted)">${esc((p.name||'').slice(0, 22))}</span></td><td class="num">${money(p.price)}</td><td class="num">${pct(p.upside_pct)}</td><td>${cons(p.consensus)}</td><td class="num">${p.pe_forward ? p.pe_forward.toFixed(1) : '—'}</td></tr>`).join('')}
     </tbody></table></div>` : '<p class="who">No industry peers returned by Yahoo.</p>';
   const trades = D.trades.filter(t => t.ticker === c.ticker && t.signal);
+  const priceChart = c.series ? stockChart(c, trades) : '';
+  const cat = c.catalysts || {};
   return `<article class="docket">
     <div class="dhead"><span class="tk">${esc(c.ticker)}</span><span class="co">${esc(f.name)} · ${esc(f.industry || f.sector || '')}</span></div>
     <div class="meters"><span class="meter"><b>Political link</b><span class="pips">${pip(c.access_score, 'acc', c.access.length)}</span>${c.access_score}/${c.access.length}</span>
@@ -274,10 +403,13 @@ function signalCard(c) {
       <div class="fact"><b>Consensus</b><span>${cons(f.consensus)}${f.analysts ? ` <small style="color:var(--muted)">(${esc(f.analysts)})</small>` : ''}</span></div>
       <div class="fact"><b>EPS ttm → fwd</b><span>${esc(f.eps_trailing ?? '—')} → ${f.eps_forward != null ? f.eps_forward.toFixed(2) : '—'}</span></div>
     </div>
+    ${c.earnings_soon ? `<div class="chips"><span class="pill late">Results due ${fmtD(c.earnings_date)}</span></div>` : ''}
+    ${priceChart}
     <div class="who"><strong>Since first buy</strong> (${fmtD(c.first_buy)})</div>
     ${race(c)}
     <details><summary>Why they might know (${c.access_score}/${c.access.length})</summary>${checkList(c.access)}</details>
     <details><summary>What the data says (${c.data_score}/${c.checks.length})</summary>${checkList(c.checks)}</details>
+    <details><summary>News and catalysts</summary>${catalystBlock(cat, c)}</details>
     <details><summary>Bills (${c.bill_links.length})</summary>${billList}</details>
     <details><summary>News search</summary>${pressList}</details>
     <details><summary>Peer group</summary>${peers}</details>
@@ -287,12 +419,41 @@ function signalCard(c) {
   </article>`;
 }
 
+function stockChart(c, trades) {
+  const dates = D.chart_dates, idx = new Map(dates.map((d, i) => [d, i]));
+  const near = d => { if (idx.has(d)) return idx.get(d); const j = dates.findIndex(x => x >= d); return j < 0 ? -1 : j; };
+  const first = c.series.findIndex(v => v != null), sp0 = D.spy_series[first];
+  if (first < 0) return '';
+  const markers = trades.filter(t => t.trade_date >= dates[0]).map(t => ({i: near(t.trade_date), kind: t.type === 'Buy' ? 'buy' : 'sell',
+    label: `${who(t)} ${t.type === 'Buy' ? 'bought' : 'sold'} (${t.amount})`})).filter(m => m.i >= 0);
+  return chartSlot({title: c.ticker + ' price against the S&P 500 over six months', dates, baseline: 0,
+    fmt: v => (v > 0 ? '+' : '') + v.toFixed(1) + '%', markers,
+    series: [{name: c.ticker, color: '--s1', values: c.series.map(v => v == null ? null : (v / c.series[first] - 1) * 100)},
+             {name: 'S&P 500', color: '--s3', values: D.spy_series.map(v => v == null || !sp0 ? null : (v / sp0 - 1) * 100)}]});
+}
+
+function catalystBlock(cat, c) {
+  const an = cat.analysts, est = cat.estimates, con = cat.contracts, sec = cat.sec;
+  const usd = v => '$' + (v >= 1e9 ? (v / 1e9).toFixed(1) + 'bn' : v >= 1e6 ? (v / 1e6).toFixed(1) + 'm' : Math.round(v).toLocaleString('en-US'));
+  const anList = an && an.items.length ? `<ul class="links">${an.items.map(a => `<li><span class="pill ${a.direction === 'up' ? 'Buy' : a.direction === 'down' ? 'Sell' : 'Exchange'}">${a.direction === 'up' ? 'Up' : a.direction === 'down' ? 'Down' : 'Held'}</span> ${esc(a.firm)}: ${esc(a.to || a.action)}${a.target ? ` · target $${a.target}${a.prior_target && a.prior_target !== a.target ? ` (was $${a.prior_target})` : ''}` : ''}<small>${fmtD(a.date)}</small></li>`).join('')}</ul>` : '<p class="who">No analyst actions in the last 30 days.</p>';
+  const conList = con && con.items.length ? `<p class="who">${usd(con.total)} across ${con.count} awards in 90 days.</p><ul class="links">${con.items.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${usd(x.amount)} · ${esc(x.agency)}</a><small>${fmtD(x.date)} · ${esc(x.recipient)} · ${esc(x.what)}</small></li>`).join('')}</ul>` : '<p class="who">No new US government contract money found in the last 90 days.</p>';
+  const secList = sec == null ? '<p class="who">SEC company events are off. They switch on once a contact email is set for the SEC.</p>'
+    : sec.length ? `<ul class="links">${sec.map(x => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.items.join(', ') || '8-K filing')}</a>${x.red_flag ? ' <span class="pill Sell">Red flag</span>' : ''}<small>${fmtD(x.date)}</small></li>`).join('')}</ul>` : '<p class="who">No major-event filings in the last 45 days.</p>';
+  return `<div class="cat-grid">
+    <div><h4>Analysts, last 30 days</h4>${an ? `<p class="who">${an.up} up, ${an.down} down</p>` : ''}${anList}</div>
+    <div><h4>Earnings estimates, last 30 days</h4><p class="who">${est ? `${est.up} raised, ${est.down} cut` : 'No data'}${c.earnings_date ? ` · next results ${fmtD(c.earnings_date)}` : ''}</p></div>
+    <div><h4>US government contracts</h4>${conList}</div>
+    <div><h4>Company events (SEC 8-K)</h4>${secList}</div>
+  </div>`;
+}
+
 function renderSignals(f) {
   let cards = D.tickers.filter(c => c.fund && c.checks && c.buy_count);
   cards = cards.filter(c => D.trades.some(t => t.ticker === c.ticker && t.signal && tradeMatch(t, {...f, side: f.side || 'Buy'})));
   if (f.strong) cards = cards.filter(c => c.access_score >= 2);
   $('#count').textContent = `${cards.length} bought stocks, ranked by political link plus data` + (cards.length > SHOW ? ` · showing the top ${SHOW}` : '');
   $('#view-signals').innerHTML = cards.slice(0, SHOW).map(signalCard).join('') || '<p class="empty">No stocks match these filters.</p>';
+  mountCharts($('#view-signals'));
 }
 
 function renderTrades(f) {
@@ -345,10 +506,10 @@ function renderMethod() {
   <p>Autopilot is the product they sell to that audience. You link your own broker (Robinhood, Webull, Public and others) through the broker's API, pick a "pilot" such as Pelosi, and set a dollar amount. When a new filing lands, Autopilot places the same trade in your account. It is a registered investment adviser and charges $100 a year per portfolio.</p>
   <p>The weak point is timing. Filings arrive up to 45 days after the trade, and Autopilot's own reviewers put the average copy delay at about two weeks after filing. You are always buying after the politician, often after the price has moved.</p>
   <h2>What Capitol Signal does differently</h2>
-  <p>It asks two questions about every stock a politician bought. First, why might they know something? That covers whether several of them bought it, whether a buyer sits on a committee that oversees that business, and whether a buyer backed a bill that touches the company or its industry. Second, what does the market data say today? That covers analyst consensus, the gap to the average target price, expected earnings growth, and valuation against industry peers. The £500 test then checks whether this filter beats plain copying.</p>
+  <p>It asks two questions about every stock a politician bought. First, why might they know something? That covers whether several of them bought it, whether a buyer sits on a committee that oversees that business, and whether a buyer backed a bill that touches the company or its industry. Second, what does the market say today? That covers analyst consensus, the gap to the average target price, expected earnings growth, valuation against industry peers, whether analysts have been upgrading or downgrading it this month, whether they are raising or cutting their earnings estimates, and whether the company has just won US government contract money. The £500 test then checks whether this filter beats plain copying.</p>
   <h2>Where the data comes from</h2>
   <p>House trades: Periodic Transaction Reports from the House Clerk. Senate trades: the Senate eFD search. Only electronic filings are read; ${D.skipped_paper_filings.length} scanned paper filings in this window were skipped and are listed below.</p>
-  <p>Committee seats: the public congress-legislators dataset. Bills: the official GovInfo bill status records, covering sponsors and co-sponsors. Prices, targets, consensus, EPS and peers: Yahoo Finance.</p>
+  <p>Committee seats: the public congress-legislators dataset. Bills: the official GovInfo bill status records, covering sponsors and co-sponsors. Government contracts: USAspending.gov, the official record of federal spending. Company events: SEC 8-K filings. Prices, targets, consensus, EPS, analyst actions, estimate revisions, earnings dates and peers: Yahoo Finance.</p>
   <h2>What counts and what doesn't</h2>
   <p>Only stock trades feed the scores and the £500 test. Shown in Filings but not scored: options (a bet that a price will fall can look like a buy), corrections to reports first filed before this 90-day window, and filings listing 50 or more purchases at once, which are portfolio set-ups or managed accounts rather than considered bets. When an amendment repeats a trade, only the latest version is kept, and trades marked Deleted are removed.</p>
   <p>A bill counts when the buyer sponsored or co-sponsored it within 120 days of the trade, either side, and its title names the company or targets the company's industry directly, such as a drug pricing bill for a drug maker or a banking bill for a bank. Broad themes like AI, data centres and crypto are not scored.</p>
@@ -361,6 +522,7 @@ function renderMethod() {
 }
 
 function render() {
+  resetCharts();
   const f = filt();
   VIEWS.forEach(v => {
     $('#view-' + v).hidden = v !== view;
@@ -373,6 +535,7 @@ function render() {
 document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
   view = b.dataset.view; try { localStorage.setItem('cs-view', view) } catch (e) {} render(); window.scrollTo(0, 0);
 }));
-['q', 'chamber', 'side', 'strong'].forEach(id => $('#' + id).addEventListener('input', render));
+let typing; $('#q').addEventListener('input', () => { clearTimeout(typing); typing = setTimeout(render, 150); });
+['chamber', 'side', 'strong'].forEach(id => $('#' + id).addEventListener('input', render));
 render();
 </script>
