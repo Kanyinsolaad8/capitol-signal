@@ -2,10 +2,15 @@
 
   copy      Autopilot-style: copy freshly filed buys (biggest reported amounts first); sell only when a
             politician who bought it files a sale.
-  filtered  Your version: buy only when Political link >= 2 of 3 AND analysts rate it Buy/Strong Buy
-            AND the mean target is >= 15% above the price. Sell when a buyer files a sale, analysts cut
-            to Hold or worse, upside to target falls under 5% (or the target is reached), or the price
-            falls 15% below entry (stop-loss).
+  filtered  Your version. Buy only when ALL of these hold:
+              - Political link >= 2 of 3 (several members bought, committee link, bill link)
+              - analysts rate it Buy or Strong Buy, and the mean target is >= 15% above the price
+              - Market checks >= 4 of 7 (consensus, upside, EPS growth, cheaper than peers, analyst
+                momentum, estimates rising, new US government contracts)
+              - results are not due within 7 days
+            Sell when a buyer files a sale, analysts cut to Hold or worse, upside to target falls under 5%
+            (or the target is reached), analysts turn negative (2+ downgrades or target cuts in 30 days,
+            more than upgrades), or the price falls 15% below entry (stop-loss).
   sp500     The same £500 put into the S&P 500 (SPY) on day one and left alone.
 
 Paper money only: nothing here connects to a broker. Each strategy models the same £500 so you can see which
@@ -24,7 +29,8 @@ EVENTS = ROOT / "state" / "events.json"
 DATA = ROOT / "data" / "data.json"
 START_GBP, SLOTS, FX_FEE = 500.0, 5, 0.0015
 STOP_LOSS, MIN_UPSIDE_EXIT = -0.15, 5.0
-ENTRY = {"access": 2, "upside": 15.0, "consensus": ("buy", "strong_buy")}
+ENTRY = {"access": 2, "upside": 15.0, "consensus": ("buy", "strong_buy"), "data": 4, "earnings_days": 7}
+RULES_VERSION = 2  # bump when the rules change: the test restarts so the comparison stays clean
 FRESH_DAYS = 14  # a filing counts as new news if first seen by this test and filed in the last 14 days
 FIRST_RUN_LOOKBACK_DAYS = 7
 
@@ -38,6 +44,7 @@ def new_state(today, fx, spy_price):
     shares = START_GBP * fx * (1 - FX_FEE) / spy_price
     return {
         "start_date": today, "start_gbp": START_GBP, "fx_fee": FX_FEE, "slots": SLOTS, "last_run": None,
+        "rules_version": RULES_VERSION,
         "rules": __doc__.split("Usage:")[0].strip(), "seen_sources": [],
         "strategies": {
             "copy": {"label": "Plain copy (Autopilot style)", "cash_gbp": START_GBP, "positions": {}, "ledger": []},
@@ -96,6 +103,12 @@ def run_daily(state, data, today, fx):
         return [t for t in data["trades"] if t["ticker"] == ticker and t["signal"] and t["type"].startswith("Sell")
                 and t["filing_date"] > pos["entry_date"] and (t.get("display") or t["member"]) in pos["buyers"]]
 
+    def neg_analysts(ticker):
+        an = ((cards.get(ticker) or {}).get("catalysts") or {}).get("analysts")
+        if an and an["down"] >= 2 and an["down"] > an["up"]:
+            return f"Analysts turning negative: {an['down']} downgrades or target cuts in 30 days"
+        return None
+
     # ---- exits first, so freed cash can be reused today
     for name in ("copy", "filtered"):
         strat = state["strategies"][name]
@@ -113,6 +126,8 @@ def run_daily(state, data, today, fx):
                     reason = f"Stop-loss: {move * 100:.0f}% from entry"
                 elif f and f.get("consensus") and f["consensus"] not in ENTRY["consensus"]:
                     reason = f"Analysts cut to {f['consensus'].replace('_', ' ')}"
+                elif neg_analysts(tk):
+                    reason = neg_analysts(tk)
                 elif f and f.get("upside_pct") is not None and f["upside_pct"] <= 0:
                     reason = "Reached the analyst target"
                 elif f and f.get("upside_pct") is not None and f["upside_pct"] < MIN_UPSIDE_EXIT:
@@ -154,9 +169,11 @@ def run_daily(state, data, today, fx):
         if not c or not f or "access_score" not in c:
             continue
         if (c["access_score"] >= ENTRY["access"] and f.get("consensus") in ENTRY["consensus"]
-                and (f.get("upside_pct") if f.get("upside_pct") is not None else -99) >= ENTRY["upside"]):
+                and (f.get("upside_pct") if f.get("upside_pct") is not None else -99) >= ENTRY["upside"]
+                and c.get("data_score", 0) >= ENTRY["data"] and not c.get("earnings_soon")):
             filt.append({"ticker": tk, "buyers": c["buyers"], "score": c["score"], "upside": f["upside_pct"],
-                         "reason": f"Political link {c['access_score']}/3, {f['consensus'].replace('_', ' ')}, "
+                         "reason": f"Political link {c['access_score']}/{len(c['access'])}, data "
+                                   f"{c['data_score']}/{len(c['checks'])}, {f['consensus'].replace('_', ' ')}, "
                                    f"{f['upside_pct']:.0f}% to target",
                          "extra": {"target_at_entry": f.get("target_mean")}})
     filt.sort(key=lambda c: (-c["score"], -c["upside"]))
@@ -175,6 +192,11 @@ def record(state, today, fx, prices):
     for s in state["strategies"].values():  # mark to market; keep the last known price if Yahoo has none
         for tk, p in s["positions"].items():
             p["price"] = prices.get(tk, p.get("price", p["entry_price"]))
+            hist = p.setdefault("history", [[p["entry_date"], p["entry_price"]]])
+            if hist[-1][0] == today:
+                hist[-1] = [today, p["price"]]
+            else:
+                hist.append([today, p["price"]])
             p["value_gbp"] = round(p["shares"] * p["price"] / fx, 2)
             p["move_pct"] = round((p["price"] / p["entry_price"] - 1) * 100, 1)
     row = {"date": today, **{name: round(value_gbp(s, fx), 2) for name, s in state["strategies"].items()}}
@@ -187,11 +209,18 @@ def main(mode):
     fx = market.fx_gbpusd()
     data = json.loads(DATA.read_text())
     state = json.loads(STATE.read_text()) if STATE.exists() else None
+    archived = []
+    if state is not None and state.get("rules_version") != RULES_VERSION:
+        last = state["history"][-1] if state.get("history") else {}
+        archived = state.get("archived", []) + [{"rules_version": state.get("rules_version", 1),
+                                                 "start_date": state["start_date"], "end": last}]
+        state = None  # rules changed: restart all three lines so the comparison stays clean
     if state is None:
         spy = market.fundamentals("SPY")
         if not spy:
             raise SystemExit("Could not price SPY to start the test; will try again next run")
         state = new_state(today, fx, spy["price"])
+        state["archived"] = archived
     if mode == "daily":
         events = run_daily(state, data, today, fx)
     else:

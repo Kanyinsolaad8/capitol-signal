@@ -4,7 +4,7 @@ Fails loudly (non-zero exit) when inputs look broken, so an unattended run never
 """
 import json, re, sys, statistics, datetime as dt, pathlib, collections
 from concurrent.futures import ThreadPoolExecutor
-import house, senate, committees, market, bills, press
+import house, senate, committees, market, bills, press, catalysts
 
 DAYS = int(sys.argv[1]) if len(sys.argv) > 1 else 90
 OUT = pathlib.Path(__file__).resolve().parent.parent / "data"
@@ -219,7 +219,43 @@ def main():
                        ("name", "price", "upside_pct", "consensus", "pe_forward", "analysts")}}
                       for p in peers.get(tk, []) if fund.get(p)],
         }
+        cards.append(card)
+
+    # ---- recent market and government news for every scored stock (cached for the day)
+    ccache = OUT / f"catalysts-{today}.json"
+    cat = json.loads(ccache.read_text()) if ccache.exists() else {}
+    # funds and ETFs have no sector: government contracts don't apply to them
+    todo = {c["ticker"]: (c["fund"]["name"] if c["fund"].get("sector") else None) for c in cards
+            if c["fund"] and c["buy_count"] and c["ticker"] not in cat}
+    log(f"Fetching analyst, estimate, contract and SEC news for {len(todo)} stocks…")
+    cat.update(catalysts.gather_all(todo))
+    ccache.write_text(json.dumps(cat))
+    # a field Yahoo or USAspending missed today falls back to the most recent earlier day (up to 7 days)
+    misses = 0
+    for d in range(1, 8):
+        prev = OUT / f"catalysts-{today - dt.timedelta(days=d)}.json"
+        if not prev.exists():
+            continue
+        old = json.loads(prev.read_text())
+        for tk, entry in cat.items():
+            for k in ("analysts", "estimates", "contracts"):
+                if entry.get(k) is None and (old.get(tk) or {}).get(k) is not None:
+                    entry[k] = old[tk][k]
+                    entry.setdefault("stale", []).append(k)
+        break
+    misses = sum(1 for e in cat.values() if e.get("analysts") is None or e.get("estimates") is None)
+    log(f"Catalyst gaps after fallback: {misses} stocks missing analyst or estimate data")
+
+    for card in cards:
+        tk, f, buys = card["ticker"], card["fund"], card["buy_count"]
+        comm, buyers = card["committee_overlap"], card["buyers"]
         if f and buys:
+            c = cat.get(tk) or {}
+            an, est, con = c.get("analysts"), c.get("estimates"), c.get("contracts")
+            ed = c.get("earnings_date")
+            card["catalysts"] = c
+            card["earnings_date"] = ed
+            card["earnings_soon"] = bool(ed and (dt.date.fromisoformat(ed) - today).days <= 7)
             med = _median(p["pe_forward"] for p in card["peers"])
             bl = card["bill_links"]
             access = [
@@ -239,16 +275,32 @@ def main():
                 ("Cheaper than peers", bool(med and pe and 0 < pe < med),
                  f'Fwd P/E {round(pe, 1) if pe else "n/a"} vs peer median {round(med, 1)}' if med
                  else "Not enough comparable peers"),
+                ("Analyst momentum", bool(an and an["up"] > an["down"]),
+                 f'{an["up"]} upgrades or target rises vs {an["down"]} downgrades or cuts in 30 days' if an
+                 else "No analyst data"),
+                ("Estimates rising", bool(est and est["up"] > est["down"]),
+                 f'{est["up"]} earnings estimates raised vs {est["down"]} cut in 30 days' if est
+                 else "No estimate data"),
+                ("Government contracts", bool(con and con["total"] >= 1_000_000),
+                 f'${con["total"] / 1e6:,.1f}m in new US government contracts in 90 days ({con["count"]} actions)'
+                 if con and con["total"] else "No new US government contract money found in 90 days"),
             ]
             card["access"] = [{"label": a, "pass": b, "detail": c} for a, b, c in access]
             card["checks"] = [{"label": a, "pass": b, "detail": c} for a, b, c in checks]
             card["access_score"] = sum(b for _, b, _ in access)
             card["data_score"] = sum(b for _, b, _ in checks)
             card["score"] = card["access_score"] + card["data_score"]
-        cards.append(card)
     cards.sort(key=lambda c: (-(c.get("score") or -1), -(c.get("access_score") or 0), -c["buy_count"], c["ticker"]))
 
+    # ---- price lines for the app: last ~6 months of closes for the top stocks and the S&P 500
+    recent = px.iloc[-130:]
+    chart_dates = [d.strftime("%Y-%m-%d") for d in recent.index]
+    series = lambda tk: [None if v != v else round(float(v), 2) for v in recent[tk]] if tk in recent else None
+    for c in [c for c in cards if c.get("checks")][:80]:
+        c["series"] = series(c["ticker"])
+
     data = {
+        "chart_dates": chart_dates, "spy_series": series("SPY"),
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
         "window_days": DAYS, "since": since.isoformat(),
         "trades": sorted(trades, key=lambda t: (t["filing_date"], t["trade_date"]), reverse=True),
