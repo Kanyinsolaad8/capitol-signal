@@ -1,13 +1,56 @@
 {
- "mode": "weekly",
+ "mode": "daily",
  "date": "2026-10-18",
- "events": [],
+ "events": [
+  {
+   "strategy": "copy",
+   "action": "BUY",
+   "ticker": "BHE",
+   "gbp": 100.0,
+   "reason": "Gilbert Ray Cisneros, Jr. filed a buy ($15,001 - $50,000)"
+  },
+  {
+   "strategy": "copy",
+   "action": "BUY",
+   "ticker": "ON",
+   "gbp": 100.0,
+   "reason": "Gilbert Ray Cisneros, Jr. filed a buy ($15,001 - $50,000)"
+  },
+  {
+   "strategy": "copy",
+   "action": "BUY",
+   "ticker": "CACI",
+   "gbp": 100.0,
+   "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)"
+  },
+  {
+   "strategy": "copy",
+   "action": "BUY",
+   "ticker": "OLN",
+   "gbp": 100.0,
+   "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)"
+  },
+  {
+   "strategy": "copy",
+   "action": "BUY",
+   "ticker": "RIG",
+   "gbp": 100.0,
+   "reason": "Lisa C. McClain filed a buy ($15,001 - $50,000)"
+  },
+  {
+   "strategy": "filtered",
+   "action": "BUY",
+   "ticker": "TSM",
+   "gbp": 100.0,
+   "reason": "Political link 2/3, data 5/7, strong buy, 42% to target"
+  }
+ ],
  "latest": {
   "date": "2026-10-18",
-  "copy": 499.27,
+  "copy": 499.25,
   "filtered": 499.85,
-  "sp500": 499.27
+  "sp500": 499.25
  },
  "start_gbp": 500.0,
- "start_date": "2026-10-17"
+ "start_date": "2026-10-18"
 }
