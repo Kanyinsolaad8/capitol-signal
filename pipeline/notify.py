@@ -37,6 +37,10 @@ def main(mode):
         return
     ev = json.loads(EVENTS.read_text())
     if mode == "moves":
+        try:
+            senate_alert()
+        except Exception as e:
+            print("Senate alert not sent:", e)
         moves = ev["events"]
         if not moves:
             return
@@ -52,8 +56,28 @@ def main(mode):
         send(f"Capitol Signal: {len(moves)} paper move{'s' if len(moves) > 1 else ''}", "\n".join(lines),
              tags=["chart_with_upwards_trend"])
     elif mode == "weekly":
-        send("Capitol Signal: weekly £500 test", f"Since {ev['start_date']}:\n{summary_line(ev)}",
+        down = senate_state().get("down_since")
+        note = f"\nSenate filings paused since {down} (site blocking automated access)." if down else ""
+        send("Capitol Signal: weekly £500 test", f"Since {ev['start_date']}:\n{summary_line(ev)}{note}",
              tags=["calendar"])
+
+
+def senate_state():
+    p = ROOT / "state" / "senate-last.json"
+    return json.loads(p.read_text()) if p.exists() else {}
+
+
+def senate_alert():
+    """One alert on the first day the Senate site blocks us, one when it is back. Quiet in between."""
+    import datetime as dt
+    s, today = senate_state(), dt.date.today().isoformat()
+    if s.get("down_since") == today:
+        send("Capitol Signal: Senate filings paused", "The Senate website is refusing automated access. The app "
+             "keeps running on House filings and the last saved Senate data, and will pick the Senate up again "
+             "when it allows access.", tags=["warning"])
+    elif s.get("recovered") == today:
+        send("Capitol Signal: Senate filings back", "The Senate website is answering again; Senate filings are "
+             "up to date.", tags=["white_check_mark"])
 
 
 if __name__ == "__main__":

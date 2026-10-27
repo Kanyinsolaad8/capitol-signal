@@ -2,7 +2,7 @@
 
 Fails loudly (non-zero exit) when inputs look broken, so an unattended run never publishes a silently wrong page.
 """
-import json, re, sys, statistics, datetime as dt, pathlib, collections
+import json, re, sys, time, statistics, datetime as dt, pathlib, collections
 from concurrent.futures import ThreadPoolExecutor
 import house, senate, committees, market, bills, press, catalysts
 
@@ -33,24 +33,85 @@ def ingest():
                     failed.append(f["url"])
                 else:
                     trades += res
-    s = senate.session()
-    filings = senate.list_ptrs(s, since)
-    skipped += [{"chamber": "Senate", "member": f["name"], "filing_date": f["filing_date"], "source": f["url"]}
-                for f in filings if not f["electronic"]]
+    s_trades, s_skipped, s_failed, s_attempted, status = ingest_senate()
+    trades += s_trades
+    skipped += s_skipped
+    failed += s_failed
+    attempted += s_attempted
+    if not trades:
+        raise PipelineError("No trades parsed from either chamber")
+    if attempted and len(failed) / attempted > 0.25:
+        raise PipelineError(f"{len(failed)} of {attempted} filings failed to parse")
+    return trades, skipped, failed, {"senate": status}
+
+
+SENATE_CACHE = OUT.parent / "state" / "senate-last.json"
+
+
+def _senate_from_site():
+    """First run with no saved copy: take the Senate rows from the app as last published, so a Senate outage
+    doesn't wipe them. Only reads our own GitHub Pages site."""
+    import os, requests
+    url = os.environ.get("SITE_URL")
+    if not url:
+        return {}
+    try:
+        page = requests.get(url, timeout=60).text
+        d = json.loads(re.search(r'<script type="application/json" id="data">(.*?)</script>', page, re.S).group(1))
+    except Exception as e:
+        log("Could not read the published app for saved Senate data:", repr(e))
+        return {}
+    keep = ("chamber", "member", "first", "last", "state", "district", "owner", "ticker", "asset", "asset_type",
+            "option_type", "type", "trade_date", "filing_date", "amended", "old_news", "amendment", "amount",
+            "source", "status")
+    return {"date": d["generated"][:10],
+            "trades": [{k: t.get(k) for k in keep} for t in d["trades"] if t["chamber"] == "Senate"],
+            "skipped": [s for s in d.get("skipped_paper_filings", []) if s["chamber"] == "Senate"]}
+
+
+def ingest_senate():
+    """The Senate site sometimes refuses automated visitors (its firewall began blocking them in October 2026).
+    When it does, the run carries on with House filings plus the last good Senate data, instead of failing,
+    and the app says so. state/senate-last.json keeps that last good copy and the outage dates."""
+    cache = json.loads(SENATE_CACHE.read_text()) if SENATE_CACHE.exists() else {}
+    err = None
+    if not cache:
+        cache = _senate_from_site()
+    for attempt in range(3):
+        try:
+            s = senate.session()
+            filings = senate.list_ptrs(s, since)
+            break
+        except Exception as e:
+            err = e
+            log(f"Senate site unavailable (attempt {attempt + 1} of 3): {e!r}")
+            time.sleep(15 * (attempt + 1))
+    else:
+        down_since = cache.get("down_since") or today.isoformat()
+        cache.update({"down_since": down_since, "recovered": None})
+        SENATE_CACHE.parent.mkdir(exist_ok=True)
+        SENATE_CACHE.write_text(json.dumps(cache))
+        old = [t for t in cache.get("trades", []) if t["filing_date"] >= since.isoformat()]
+        old_skipped = [f for f in cache.get("skipped", []) if f["filing_date"] >= since.isoformat()]
+        log(f"Senate: using {len(old)} trades saved on {cache.get('date')} (site down since {down_since})")
+        return old, old_skipped, [], 0, {"ok": False, "last_good": cache.get("date"), "down_since": down_since,
+                                         "error": type(err).__name__ + ": " + str(err)[:200]}
+    skipped = [{"chamber": "Senate", "member": f["name"], "filing_date": f["filing_date"], "source": f["url"]}
+               for f in filings if not f["electronic"]]
     elec = [f for f in filings if f["electronic"]]
-    attempted += len(elec)
     log(f"Senate: {len(elec)} electronic filings ({sum(f['amended'] for f in elec)} amendments)")
+    trades, failed = [], []
     for f in elec:
         res = _safe(senate.parse_ptr, s, f)
         if res is None:
             failed.append(f["url"])
         else:
             trades += res
-    if not trades:
-        raise PipelineError("No trades parsed from either chamber")
-    if attempted and len(failed) / attempted > 0.25:
-        raise PipelineError(f"{len(failed)} of {attempted} filings failed to parse")
-    return trades, skipped, failed
+    was_down = cache.get("down_since") or cache.get("recovered") == today.isoformat()
+    SENATE_CACHE.parent.mkdir(exist_ok=True)
+    SENATE_CACHE.write_text(json.dumps({"date": today.isoformat(), "trades": trades, "skipped": skipped,
+                                        "down_since": None, "recovered": today.isoformat() if was_down else None}))
+    return trades, skipped, failed, len(elec), {"ok": True, "last_good": today.isoformat()}
 
 
 def _safe(fn, *a):
@@ -104,10 +165,10 @@ def _median(xs):
 def main():
     cache = OUT / f"raw-{today}-{DAYS}.json"
     if cache.exists():
-        trades, skipped, failed = json.loads(cache.read_text())
+        trades, skipped, failed, sources = json.loads(cache.read_text())
     else:
-        trades, skipped, failed = ingest()
-        cache.write_text(json.dumps([trades, skipped, failed]))
+        trades, skipped, failed, sources = ingest()
+        cache.write_text(json.dumps([trades, skipped, failed, sources]))
     log(f"{len(trades)} stock/option transactions parsed ({len(failed)} filings failed)")
 
     for t in trades:
@@ -302,7 +363,7 @@ def main():
     data = {
         "chart_dates": chart_dates, "spy_series": series("SPY"),
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
-        "window_days": DAYS, "since": since.isoformat(),
+        "window_days": DAYS, "since": since.isoformat(), "sources": sources,
         "trades": sorted(trades, key=lambda t: (t["filing_date"], t["trade_date"]), reverse=True),
         "tickers": cards, "skipped_paper_filings": skipped, "failed_filings": failed,
         "members": {b: {"name": m["official"], "party": m["party"], "state": m["state"],
