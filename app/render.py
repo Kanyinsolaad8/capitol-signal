@@ -19,6 +19,14 @@ def blob(x):
 
 
 body = (root / "app" / "template.html").read_text().replace("__DATA__", blob(data)).replace("__PORTFOLIO__", blob(portfolio))
+sen = (data.get("sources") or {}).get("senate") or {}
+if sen.get("ok") is False:  # say plainly when Senate data is stale rather than hide it
+    import datetime as dt
+    last = dt.date.fromisoformat(sen["last_good"]).strftime("%-d %b %Y") if sen.get("last_good") else "no date"
+    warn = (f'<strong style="color:var(--warn)">Senate filings paused: the Senate website is refusing '
+            f'automated access. Showing Senate filings saved on {last}; House filings are up to date.</strong> ')
+    assert body.count('<p class="notice">') == 1
+    body = body.replace('<p class="notice">', '<p class="notice">' + warn)
 (root / "app" / "capitol-signal.html").write_text(body)
 
 HEAD = """<!doctype html>
