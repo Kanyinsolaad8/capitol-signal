@@ -1,20 +1,12 @@
 {
  "mode": "daily",
  "date": "2026-10-28",
- "events": [
-  {
-   "strategy": "filtered",
-   "action": "BUY",
-   "ticker": "NVDA",
-   "gbp": 100.0,
-   "reason": "Political link 2/3, data 4/7, strong buy, 50% to target"
-  }
- ],
+ "events": [],
  "latest": {
   "date": "2026-10-28",
-  "copy": 535.48,
-  "filtered": 506.07,
-  "sp500": 504.67
+  "copy": 532.88,
+  "filtered": 540.86,
+  "sp500": 503.06
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
