@@ -3,11 +3,11 @@
   copy      Autopilot-style: copy freshly filed buys (biggest reported amounts first); sell only when a
             politician who bought it files a sale.
   filtered  Your version. Buy only when ALL of these hold:
-              - Political link >= 2 of 3 (several members bought, committee link, bill link)
+              - Political link >= 1 of 3 (several members bought, committee link, bill link)
               - analysts rate it Buy or Strong Buy, and the mean target is >= 15% above the price
               - Market checks >= 4 of 7 (consensus, upside, EPS growth, cheaper than peers, analyst
                 momentum, estimates rising, new US government contracts)
-              - results are not due within 7 days
+              - results are not due within 7 days, and analysts are not turning negative
             Sell when a buyer files a sale, analysts cut to Hold or worse, upside to target falls under 5%
             (or the target is reached), analysts turn negative (2+ downgrades or target cuts in 30 days,
             more than upgrades), or the price falls 15% below entry (stop-loss).
@@ -29,8 +29,8 @@ EVENTS = ROOT / "state" / "events.json"
 DATA = ROOT / "data" / "data.json"
 START_GBP, SLOTS, FX_FEE = 500.0, 5, 0.0015
 STOP_LOSS, MIN_UPSIDE_EXIT = -0.15, 5.0
-ENTRY = {"access": 2, "upside": 15.0, "consensus": ("buy", "strong_buy"), "data": 4, "earnings_days": 7}
-RULES_VERSION = 2  # bump when the rules change: the test restarts so the comparison stays clean
+ENTRY = {"access": 1, "upside": 15.0, "consensus": ("buy", "strong_buy"), "data": 4, "earnings_days": 7}
+RULES_VERSION = 3  # bump when the rules change: the test restarts so the comparison stays clean
 FRESH_DAYS = 14  # a filing counts as new news if first seen by this test and filed in the last 14 days
 FIRST_RUN_LOOKBACK_DAYS = 7
 
@@ -170,7 +170,8 @@ def run_daily(state, data, today, fx):
             continue
         if (c["access_score"] >= ENTRY["access"] and f.get("consensus") in ENTRY["consensus"]
                 and (f.get("upside_pct") if f.get("upside_pct") is not None else -99) >= ENTRY["upside"]
-                and c.get("data_score", 0) >= ENTRY["data"] and not c.get("earnings_soon")):
+                and c.get("data_score", 0) >= ENTRY["data"] and not c.get("earnings_soon")
+                and not neg_analysts(tk)):  # never buy what the exit rules would sell the next day
             filt.append({"ticker": tk, "buyers": c["buyers"], "score": c["score"], "upside": f["upside_pct"],
                          "reason": f"Political link {c['access_score']}/{len(c['access'])}, data "
                                    f"{c['data_score']}/{len(c['checks'])}, {f['consensus'].replace('_', ' ')}, "
