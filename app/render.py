@@ -27,6 +27,12 @@ if sen.get("ok") is False:  # say plainly when Senate data is stale rather than 
             f'automated access. Showing Senate filings saved on {last}; House filings are up to date.</strong> ')
     assert body.count('<p class="notice">') == 1
     body = body.replace('<p class="notice">', '<p class="notice">' + warn)
+if data.get("filings_failed"):  # filings couldn't be read today: prices are current, filings are not
+    import datetime as dt
+    when = dt.datetime.fromisoformat(data["filings_generated"]).strftime("%-d %b %H:%M UTC")
+    warn = (f'<strong style="color:var(--warn)">Today\'s filings could not be read; prices and the £500 test are '
+            f'current. Filings shown are from {when}; the next run will try again.</strong> ')
+    body = body.replace('<p class="notice">', '<p class="notice">' + warn, 1)
 (root / "app" / "capitol-signal.html").write_text(body)
 
 HEAD = """<!doctype html>
