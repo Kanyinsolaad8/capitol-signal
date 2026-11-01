@@ -177,7 +177,8 @@ def run_daily(state, data, today, fx):
                          "reason": f"Political link {c['access_score']}/{len(c['access'])}, data "
                                    f"{c['data_score']}/{len(c['checks'])}, {f['consensus'].replace('_', ' ')}, "
                                    f"{f['upside_pct']:.0f}% to target",
-                         "extra": {"target_at_entry": f.get("target_mean")}})
+                         "extra": {"target_at_entry": f.get("target_mean"),
+                                   "targets_at_entry": {k: f.get("target_" + k) for k in ("low", "median", "mean", "high")}}})
     filt.sort(key=lambda c: (-c["score"], -c["upside"]))
     fill("copy", copy_cands)
     fill("filtered", filt)

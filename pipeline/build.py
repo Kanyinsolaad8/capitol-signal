@@ -300,8 +300,18 @@ def main():
     ccache = OUT / f"catalysts-{today}.json"
     cat = json.loads(ccache.read_text()) if ccache.exists() else {}
     # funds and ETFs have no sector: government contracts don't apply to them
-    todo = {c["ticker"]: (c["fund"]["name"] if c["fund"].get("sector") else None) for c in cards
-            if c["fund"] and c["buy_count"] and c["ticker"] not in cat}
+    # the £500 test's holdings always get the news panel too, even if no politician bought them recently
+    pstate = OUT.parent / "state" / "portfolio.json"
+    held = sorted({tk for k, s in json.loads(pstate.read_text())["strategies"].items() if k != "sp500"
+                   for tk in s["positions"]}
+                  if pstate.exists() else set())
+    missing_fund = [tk for tk in held if not fund.get(tk)]
+    if missing_fund:
+        fund.update(optional("prices for holdings", market.fetch_all, {}, missing_fund))
+    want = {c["ticker"]: c["fund"] for c in cards if c["fund"] and c["buy_count"]}
+    want.update({tk: fund[tk] for tk in held if fund.get(tk)})
+    todo = {tk: (f["name"] if f.get("sector") else None) for tk, f in want.items()
+            if "news" not in cat.get(tk, {})}  # also refreshes entries cached before news was added
     log(f"Fetching analyst, estimate, contract and SEC news for {len(todo)} stocks…")
     cat.update(optional("analyst, contract and SEC news", catalysts.gather_all, {}, todo))
     ccache.write_text(json.dumps(cat))
@@ -380,6 +390,7 @@ def main():
         "window_days": DAYS, "since": since.isoformat(), "sources": {**sources, "degraded": DEGRADED},
         "trades": sorted(trades, key=lambda t: (t["filing_date"], t["trade_date"]), reverse=True),
         "tickers": cards, "skipped_paper_filings": skipped, "failed_filings": failed,
+        "held": {tk: {"fund": fund.get(tk), "catalysts": cat.get(tk) or {}} for tk in held},
         "members": {b: {"name": m["official"], "party": m["party"], "state": m["state"],
                         "chamber": m["chamber"], "committees": m["committees"]}
                     for b, m in members.items() if b in {t["bioguide"] for t in trades}},

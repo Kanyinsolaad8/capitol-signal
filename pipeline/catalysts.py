@@ -190,12 +190,59 @@ def sec_events(ticker, days=45):
     return out[:6]
 
 
+def ratings(ticker):
+    """How many analysts rate it Strong Buy / Buy / Hold / Sell / Strong Sell, this month and last."""
+    try:
+        rs = yf.Ticker(ticker).recommendations_summary
+    except Exception:
+        return None
+    if rs is None or rs.empty:
+        return None
+    cols = ("strongBuy", "buy", "hold", "sell", "strongSell")
+    rows = {r["period"]: {c: int(r.get(c) or 0) for c in cols} for _, r in rs.iterrows()}
+    return {"now": rows.get("0m"), "last_month": rows.get("-1m")} if rows.get("0m") else None
+
+
+# Headline tags are a simple keyword guide to what kind of news it is, not a judgement of the story.
+TAGS = [
+    ("Political", r"congress|senat|house |lawmaker|white house|president|trump|biden|tariff|sanction|regulat|"
+                  r"fda|ftc|sec |doj|antitrust|government|federal|pentagon|defen[cs]e (?:contract|budget)|"
+                  r"subsid|chips act|export|import|trade war|policy|bill |legislat|election|china|taiwan"),
+    ("Fundamental", r"earning|revenue|sales|profit|loss|guidance|outlook|forecast|quarter|results|margin|"
+                    r"eps|dividend|buyback|acquisi|merger|deal|contract|order|launch|approv|trial|data|"
+                    r"patent|lawsuit|recall|layoff|ceo|cfo|debt|offering|cash"),
+    ("Sentiment", r"upgrade|downgrade|price target|analyst|rating|outperform|underperform|overweight|"
+                  r"underweight|bull|bear|rall|surg|soar|jump|plung|slump|tumbl|sell-off|selloff|short|"
+                  r"momentum|investor|hedge fund|stake|insider|drop|fall|rise|gain|winner|valuation|"
+                  r"overvalu|undervalu|priced|buy |sell |hold "),
+]
+
+
+def news(ticker, days=21, n=6):
+    """Recent headlines about the company (Yahoo Finance news search), each with its source and a link."""
+    try:
+        items = yf.Search(ticker, news_count=12).news or []
+    except Exception:
+        return None
+    since = time.time() - days * 86400
+    out = []
+    for x in items:
+        if ticker not in (x.get("relatedTickers") or []) or (x.get("providerPublishTime") or 0) < since:
+            continue
+        title = x.get("title") or ""
+        low = " " + title.lower() + " "
+        out.append({"title": title[:200], "source": x.get("publisher"), "url": x.get("link"),
+                    "date": dt.datetime.fromtimestamp(x["providerPublishTime"], dt.timezone.utc).date().isoformat(),
+                    "tags": [name for name, rx in TAGS if re.search(rx, low)]})
+    return sorted(out, key=lambda x: x["date"], reverse=True)[:n]
+
+
 def gather(ticker, company_name):
     """company_name is the listed name, or None for funds (no contracts lookup)."""
     return {"analysts": analyst_actions(ticker), "estimates": estimate_revisions(ticker),
             "earnings_date": next_earnings(ticker),
             "contracts": federal_contracts(ticker, company_name) if company_name else None,
-            "sec": sec_events(ticker)}
+            "sec": sec_events(ticker), "ratings": ratings(ticker), "news": news(ticker)}
 
 
 def gather_all(items, workers=None):

@@ -29,7 +29,7 @@ def fundamentals(ticker):
         "name": i.get("shortName") or i.get("longName") or ticker,
         "sector": i.get("sector"), "industry": i.get("industry"), "industry_key": i.get("industryKey"),
         "price": price, "target_mean": tgt, "target_high": _num(i.get("targetHighPrice")),
-        "target_low": _num(i.get("targetLowPrice")),
+        "target_low": _num(i.get("targetLowPrice")), "target_median": _num(i.get("targetMedianPrice")),
         "upside_pct": round((tgt / price - 1) * 100, 1) if tgt else None,
         "consensus": i.get("recommendationKey"), "rec_mean": _num(i.get("recommendationMean")),
         "analysts": i.get("numberOfAnalystOpinions"),
