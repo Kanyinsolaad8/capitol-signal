@@ -99,12 +99,27 @@ def _load_one(congress, cache_dir, max_age_hours):
         if p and p.exists() and time.time() - p.stat().st_mtime < max_age_hours * 3600:
             raw = p.read_bytes()
         else:
-            r = requests.get(URL.format(c=congress, t=t), timeout=600)
-            if r.status_code == 404:  # a brand-new Congress may have no bills of this type yet
-                continue
-            r.raise_for_status()
-            raw = r.content
-            if p:
+            raw = None
+            for attempt in range(3):  # these files are large; GovInfo sometimes cuts the download short
+                try:
+                    r = requests.get(URL.format(c=congress, t=t), timeout=600)
+                    if r.status_code == 404:  # a brand-new Congress may have no bills of this type yet
+                        break
+                    r.raise_for_status()
+                    zipfile.ZipFile(io.BytesIO(r.content)).testzip()
+                    raw = r.content
+                    break
+                except Exception as e:
+                    print(f"Bills {congress}-{t}: download failed (attempt {attempt + 1} of 3): {e!r}"[:300])
+                    time.sleep(20 * (attempt + 1))
+            if raw is None:
+                if p and p.exists():  # an older copy is far better than none
+                    print(f"Bills {congress}-{t}: using the saved copy from an earlier run")
+                    raw = p.read_bytes()
+                else:
+                    print(f"Bills {congress}-{t}: skipped today")
+                    continue
+            elif p:
                 p.parent.mkdir(parents=True, exist_ok=True)
                 p.write_bytes(raw)
         z = zipfile.ZipFile(io.BytesIO(raw))

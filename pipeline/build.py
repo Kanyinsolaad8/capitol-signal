@@ -114,6 +114,20 @@ def ingest_senate():
     return trades, skipped, failed, len(elec), {"ok": True, "last_good": today.isoformat()}
 
 
+DEGRADED = []
+
+
+def optional(what, fn, default, *a, **k):
+    """A side source failing (bills, committees, peers, news) must never stop the daily update: carry on
+    without it and say so in the app."""
+    try:
+        return fn(*a, **k)
+    except Exception as e:
+        log(f"{what} unavailable today, carrying on without: {e!r}"[:300])
+        DEGRADED.append(what)
+        return default
+
+
 def _safe(fn, *a):
     try:
         return fn(*a)
@@ -184,7 +198,7 @@ def main():
             t["old_news"] = True  # an amended row about a trade from before the window
     trades = reconcile(trades)
 
-    roster = committees.load()
+    roster = optional("committee seats", committees.load, [])
     members = {m["bioguide"]: m for m in roster}
     for t in trades:
         m = committees.match(roster, t["chamber"], t["first"], t["last"], t["state"])
@@ -218,7 +232,7 @@ def main():
     peers = {}
     for tk in sorted(buy_tickers):
         if fund[tk].get("industry_key"):
-            peers[tk] = market.industry_peers(fund[tk]["industry_key"], tk)
+            peers[tk] = optional(f"peers for {tk}", market.industry_peers, [], fund[tk]["industry_key"], tk)
     extra = sorted({p for ps in peers.values() for p in ps} - {k for k, v in fund.items() if v})
     log(f"Fetching {len(extra)} peer tickers…")
     fund.update(market.fetch_all(extra))
@@ -227,7 +241,7 @@ def main():
 
     log("Loading bill sponsorship records…")
     congresses = sorted({bills.congress_for(since), bills.congress_for(today)})
-    bill_idx = bills.by_member(bills.load(congresses, cache_dir=OUT / "bills"))
+    bill_idx = bills.by_member(optional("bill records", bills.load, [], congresses, cache_dir=OUT / "bills"))
 
     first_trade = min(t["trade_date"] for t in trades)
     ref = ["SPY"] + list(market.SECTOR_ETF.values())
@@ -289,7 +303,7 @@ def main():
     todo = {c["ticker"]: (c["fund"]["name"] if c["fund"].get("sector") else None) for c in cards
             if c["fund"] and c["buy_count"] and c["ticker"] not in cat}
     log(f"Fetching analyst, estimate, contract and SEC news for {len(todo)} stocks…")
-    cat.update(catalysts.gather_all(todo))
+    cat.update(optional("analyst, contract and SEC news", catalysts.gather_all, {}, todo))
     ccache.write_text(json.dumps(cat))
     # a field Yahoo or USAspending missed today falls back to the most recent earlier day (up to 7 days)
     misses = 0
@@ -363,7 +377,7 @@ def main():
     data = {
         "chart_dates": chart_dates, "spy_series": series("SPY"),
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
-        "window_days": DAYS, "since": since.isoformat(), "sources": sources,
+        "window_days": DAYS, "since": since.isoformat(), "sources": {**sources, "degraded": DEGRADED},
         "trades": sorted(trades, key=lambda t: (t["filing_date"], t["trade_date"]), reverse=True),
         "tickers": cards, "skipped_paper_filings": skipped, "failed_filings": failed,
         "members": {b: {"name": m["official"], "party": m["party"], "state": m["state"],

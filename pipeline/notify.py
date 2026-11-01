@@ -3,7 +3,7 @@
 Needs the secret channel name in the NTFY_TOPIC environment variable (stored as a GitHub secret).
 Sends nothing when there is nothing to say, so your phone stays quiet on most days.
 
-Usage: python notify.py moves | weekly | failed
+Usage: python notify.py moves | weekly | partial | failed
 """
 import json, os, sys, pathlib
 import requests
@@ -31,6 +31,17 @@ def summary_line(ev):
 
 
 def main(mode):
+    if mode == "partial":
+        flag = ROOT / "state" / "partial-alert.txt"
+        import datetime as dt
+        today = dt.date.today().isoformat()
+        if flag.exists() and flag.read_text().strip() == today:
+            return  # one alert a day is enough; later runs keep retrying quietly
+        flag.write_text(today)
+        send("Capitol Signal: filings not read yet today", "A data source failed, so today's new filings "
+             "weren't read. Prices and the £500 test are up to date. It retries automatically every two hours.",
+             tags=["warning"])
+        return
     if mode == "failed":
         send("Capitol Signal: today's update failed", "The daily run hit an error. The app still shows the last "
              "good data. Open the GitHub Actions page for details.", tags=["warning"], priority=4)

@@ -18,7 +18,8 @@ one you'd rather have put your real £500 into. Cash is held in pounds; every bu
 day's GBP/USD rate with a 0.15% currency fee (typical of UK app brokers). Fills use the latest closing price
 and fractional shares. 5 slots: each new buy uses the free cash divided by the empty slots.
 
-Usage: python portfolio.py daily | weekly      (writes state/portfolio.json and state/events.json)
+Usage: python portfolio.py daily | weekly | mark   (writes state/portfolio.json and state/events.json)
+  daily trades on new filings; weekly and mark only revalue the holdings at the latest prices.
 """
 import json, sys, datetime as dt, pathlib, re
 import market
@@ -205,6 +206,33 @@ def record(state, today, fx, prices):
     state["fx_gbpusd"] = fx
 
 
+def fill_gaps(state, today):
+    """If any weekday was missed (an outage, a delayed or failed run), record each missed day's value from
+    that day's actual closing prices, so the chart and holdings never have holes."""
+    last = dt.date.fromisoformat(state.get("last_run") or state["start_date"])
+    end = dt.date.fromisoformat(today)
+    days = [last + dt.timedelta(days=i) for i in range(1, (end - last).days)]
+    days = [d.isoformat() for d in days if d.weekday() < 5]
+    if not days:
+        return
+    held = sorted({t for s in state["strategies"].values() for t in s["positions"]})
+    try:
+        px = market.closes(held + ["GBPUSD=X"], (dt.date.fromisoformat(days[0]) - dt.timedelta(days=7)).isoformat())
+    except Exception as e:
+        print("Could not fill missed days:", e)
+        return
+    for d in days:
+        before = px[px.index < d]
+        last_close = lambda t: (round(float(before[t].dropna().iloc[-1]), 6 if t.endswith("=X") else 2)
+                                if t in before and not before[t].dropna().empty else None)
+        fx = last_close("GBPUSD=X")
+        if not fx:
+            continue
+        record(state, d, fx, {t: v for t in held if (v := last_close(t))})
+        state["history"].sort(key=lambda h: h["date"])
+        print("Filled missed day", d)
+
+
 def main(mode):
     today = dt.date.today().isoformat()
     fx = market.fx_gbpusd()
@@ -222,8 +250,10 @@ def main(mode):
             raise SystemExit("Could not price SPY to start the test; will try again next run")
         state = new_state(today, fx, spy["price"])
         state["archived"] = archived
+    fill_gaps(state, today)
     if mode == "daily":
         events = run_daily(state, data, today, fx)
+        state["last_full_run"] = today
     else:
         held = sorted({t for s in state["strategies"].values() for t in s["positions"]})
         f = market.fetch_all(held)
