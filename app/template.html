@@ -143,6 +143,15 @@ tr.pos-row { cursor: pointer } tr.pos-row:hover td { background: var(--paper) }
 tr.pos-row td.why::before { content: "▸ "; color: var(--accent) } tr.pos-row.open td.why::before { content: "▾ " }
 tr.pos-detail td { white-space: normal; background: var(--paper) }
 .cat-grid { display: grid; gap: 10px; margin-top: 8px }
+.detail { display: grid; gap: 12px; padding: 4px 0 8px }
+.detail h4 { font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 6px 12px; font-size: 13px }
+.kv b { display: block; font: 600 10.5px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+.kv span { font: 500 13.5px var(--mono); font-variant-numeric: tabular-nums }
+.rbar { display: flex; height: 10px; border-radius: 2px; overflow: hidden; background: var(--rule); margin: 4px 0 }
+.rbar i { display: block; height: 100% } .rbar i + i { border-left: 2px solid var(--paper) }
+.tag { font: 600 10.5px var(--body); letter-spacing: .04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); margin-right: 4px }
+td.inv { white-space: nowrap }
 .cat-grid h4 { font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px }
 .chart { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 8px }
 .chart svg { width: 100%; height: auto; display: block }
@@ -330,10 +339,70 @@ function positionChart(p) {
 function holdings(k) {
   const s = P.strategies[k], pos = Object.entries(s.positions);
   if (!pos.length) return `<p class="who">No holdings yet. Cash ${gbp(s.cash_gbp)}.</p>`;
-  return `<div class="tbl"><table><thead><tr><th>Stock</th><th>Bought</th><th class="num">Move</th><th class="num">Value</th></tr></thead><tbody>
-    ${pos.map(([t, p]) => `<tr class="pos-row" tabindex="0" aria-expanded="false"><td class="why"><strong>${esc(t)}</strong><small>${esc(p.reason)}</small></td><td>${fmtD(p.entry_date)}</td><td class="num">${pct(p.move_pct)}</td><td class="num">${gbp(p.value_gbp)}</td></tr>
-    <tr class="pos-detail" hidden><td colspan="4">${positionChart(p)}<small>Bought at $${Number(p.entry_price).toFixed(2)} · now $${Number(p.price).toFixed(2)}${p.target_at_entry ? ' · analyst target at entry $' + Number(p.target_at_entry).toFixed(2) : ''}</small></td></tr>`).join('')}
-    <tr><td>Cash</td><td></td><td></td><td class="num">${gbp(s.cash_gbp)}</td></tr></tbody></table></div>`;
+  const inv = pos.reduce((a, [, p]) => a + p.cost_gbp, 0), val = pos.reduce((a, [, p]) => a + p.value_gbp, 0);
+  return `<div class="tbl"><table><thead><tr><th>Stock</th><th class="num">Invested</th><th class="num">Value now</th><th class="num">Gain / loss</th></tr></thead><tbody>
+    ${pos.map(([t, p]) => { const gl = p.value_gbp - p.cost_gbp; return `<tr class="pos-row" tabindex="0" aria-expanded="false"><td class="why"><strong>${esc(t)}</strong><small>Bought ${fmtD(p.entry_date)} · price ${pct(p.move_pct)} since</small></td><td class="num">${gbp(p.cost_gbp)}</td><td class="num">${gbp(p.value_gbp)}</td><td class="num inv">${gl >= 0 ? '+' : '−'}£${Math.abs(gl).toFixed(2)}<br>${pct(gl / p.cost_gbp * 100)}</td></tr>
+    <tr class="pos-detail" hidden><td colspan="4">${holdingDetail(t, p)}</td></tr>`; }).join('')}
+    <tr><td>Cash</td><td class="num">—</td><td class="num">${gbp(s.cash_gbp)}</td><td></td></tr>
+    <tr><td><strong>Total</strong></td><td class="num">${gbp(inv)}</td><td class="num">${gbp(val + s.cash_gbp)}</td><td></td></tr></tbody></table></div>`;
+}
+
+function infoFor(t) {
+  const c = D.tickers.find(x => x.ticker === t) || {};
+  const h = (D.held || {})[t] || {};
+  return {fund: h.fund || c.fund || {}, cat: (h.catalysts && Object.keys(h.catalysts).length ? h.catalysts : c.catalysts) || {}, card: c};
+}
+
+function holdingDetail(t, p) {
+  const {fund: f, cat, card} = infoFor(t);
+  const shares = Number(p.shares);
+  const pol = card.access ? `<div><h4>Political link (${card.access_score}/${card.access.length})</h4><ul class="checks">${card.access.map(a => `<li><span class="mk ${a.pass ? 'y' : 'n'}">${a.pass ? '✓' : '·'}</span><span>${esc(a.label)}<small>${esc(a.detail)}</small></span></li>`).join('')}</ul></div>`
+    : (p.buyers && p.buyers.length ? `<div><h4>Bought by</h4><p class="who">${p.buyers.map(esc).join(', ')}</p></div>` : '');
+  return `<div class="detail">
+    ${positionChart(p)}
+    <div><h4>Why it was bought</h4><p class="who">${esc(p.reason)}</p></div>
+    <div class="kv">
+      <div><b>Invested</b><span>${gbp(p.cost_gbp)}</span></div>
+      <div><b>Shares</b><span>${shares < 1 ? shares.toFixed(4) : shares.toFixed(2)}</span></div>
+      <div><b>Bought at</b><span>$${Number(p.entry_price).toFixed(2)}</span></div>
+      <div><b>Price now</b><span>$${Number(p.price).toFixed(2)}</span></div>
+      <div><b>Value now</b><span>${gbp(p.value_gbp)}</span></div>
+    </div>
+    ${targetsBlock(f, p)}
+    ${ratingsBlock(cat.ratings, f)}
+    ${pol}
+    ${newsBlock(cat.news)}
+    ${catalystBlock(cat, {earnings_date: cat.earnings_date})}
+  </div>`;
+}
+
+function targetsBlock(f, p) {
+  if (!f || !f.target_mean) return '';
+  const price = p ? Number(p.price) : f.price, up = v => v && price ? pct((v / price - 1) * 100) : '';
+  const cell = (label, v) => v ? `<div><b>${label}</b><span>$${Number(v).toFixed(2)}</span> ${up(v)}</div>` : '';
+  const e = p && p.targets_at_entry;
+  const atEntry = e ? `Targets when bought: low $${(+e.low).toFixed(2)}, median $${(+e.median).toFixed(2)}, average $${(+e.mean).toFixed(2)}, high $${(+e.high).toFixed(2)}.`
+    : p && p.target_at_entry ? `Average target when bought: $${Number(p.target_at_entry).toFixed(2)}.` : '';
+  return `<div><h4>Analyst price targets now (${esc(f.analysts || '?')} analysts)</h4>
+    <div class="kv">${cell('Low', f.target_low)}${cell('Median', f.target_median)}${cell('Average', f.target_mean)}${cell('High', f.target_high)}</div>
+    <p class="who" style="color:var(--muted)">Change shown is from today's price. The median is the middle forecast, so one very high or low target moves it less than the average. ${atEntry}</p></div>`;
+}
+
+function ratingsBlock(r, f) {
+  if (!r || !r.now) return f && f.consensus ? `<div><h4>Analyst advice</h4><p class="who">${cons(f.consensus)}</p></div>` : '';
+  const L = [['strongBuy', 'Strong buy', '--buy'], ['buy', 'Buy', '--s3'], ['hold', 'Hold', '--muted'], ['sell', 'Sell', '--s2'], ['strongSell', 'Strong sell', '--sell']];
+  const n = L.reduce((a, [k]) => a + r.now[k], 0) || 1;
+  const prev = r.last_month ? ' Last month: ' + L.map(([k, l]) => `${l} ${r.last_month[k]}`).join(', ') + '.' : '';
+  return `<div><h4>Analyst advice: ${f && f.consensus ? cons(f.consensus) : ''}</h4>
+    <div class="rbar" role="img" aria-label="Analyst ratings">${L.map(([k, , c]) => r.now[k] ? `<i style="width:${r.now[k] / n * 100}%;background:var(${c})"></i>` : '').join('')}</div>
+    <p class="who">${L.map(([k, l]) => `${l} <strong>${r.now[k]}</strong>`).join(' · ')}<small style="display:block;color:var(--muted)">This month.${prev}</small></p></div>`;
+}
+
+function newsBlock(items) {
+  if (!items) return '';
+  if (!items.length) return '<div><h4>Recent news</h4><p class="who">No company headlines in the last three weeks.</p></div>';
+  return `<div><h4>Recent news</h4><ul class="links">${items.map(x => `<li>${(x.tags || []).map(g => `<span class="tag">${esc(g)}</span>`).join('')}<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a><small>${esc(x.source)} · ${fmtD(x.date)}</small></li>`).join('')}</ul>
+    <p class="who" style="color:var(--muted)">Headlines from Yahoo Finance. Tags are a keyword guide: Fundamental (results, deals, products), Sentiment (analyst calls, investor mood), Political (government, regulation, trade).</p></div>`;
 }
 
 function renderTest() {
@@ -347,7 +416,7 @@ function renderTest() {
     <div class="tiles">${tiles}</div>
     ${strategyChart(P.history)}
     ${(P.archived || []).length ? `<p class="who">Restarted on ${fmtD(P.start_date)} with new rules. ${P.archived.map(a => `Earlier run from ${fmtD(a.start_date)} ended at Filtered ${gbp(a.end.filtered)}, Copy ${gbp(a.end.copy)}, S&amp;P ${gbp(a.end.sp500)}.`).join(' ')}</p>` : ''}
-    <p class="who">Tap a holding to see its price line.</p>
+    <p class="who">Tap a holding for its price line, analyst targets and advice, and recent news.</p>
     <h2 class="sub">Filtered: your version</h2>${holdings('filtered')}
     <h2 class="sub">Plain copy: Autopilot style</h2>${holdings('copy')}
     <h2 class="sub">Recent moves</h2>
@@ -409,7 +478,7 @@ function signalCard(c) {
     ${race(c)}
     <details><summary>Why they might know (${c.access_score}/${c.access.length})</summary>${checkList(c.access)}</details>
     <details><summary>What the data says (${c.data_score}/${c.checks.length})</summary>${checkList(c.checks)}</details>
-    <details><summary>News and catalysts</summary>${catalystBlock(cat, c)}</details>
+    <details><summary>Targets, analyst advice and news</summary><div class="detail">${targetsBlock(f)}${ratingsBlock(cat.ratings, f)}${newsBlock(cat.news)}${catalystBlock(cat, c)}</div></details>
     <details><summary>Bills (${c.bill_links.length})</summary>${billList}</details>
     <details><summary>News search</summary>${pressList}</details>
     <details><summary>Peer group</summary>${peers}</details>
