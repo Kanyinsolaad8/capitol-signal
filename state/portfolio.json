@@ -40,7 +40,7 @@
     "BHE": {
      "shares": 1.87669927,
      "entry_price": 70.62,
-     "price": 59.365,
+     "price": 59.38,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -114,16 +114,16 @@
       ],
       [
        "2026-11-05",
-       59.365
+       59.38
       ]
      ],
-     "value_gbp": 82.62,
+     "value_gbp": 82.87,
      "move_pct": -15.9
     },
     "ON": {
      "shares": 1.84021803,
      "entry_price": 72.02,
-     "price": 63.745,
+     "price": 63.01,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -197,16 +197,16 @@
       ],
       [
        "2026-11-05",
-       63.745
+       63.01
       ]
      ],
-     "value_gbp": 87.0,
-     "move_pct": -11.5
+     "value_gbp": 86.23,
+     "move_pct": -12.5
     },
     "CACI": {
      "shares": 0.21574206,
      "entry_price": 614.31,
-     "price": 612.88,
+     "price": 604.92,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -280,16 +280,16 @@
       ],
       [
        "2026-11-05",
-       612.88
+       604.92
       ]
      ],
-     "value_gbp": 98.06,
-     "move_pct": -0.2
+     "value_gbp": 97.05,
+     "move_pct": -1.5
     },
     "OLN": {
      "shares": 8.46853052,
      "entry_price": 15.65,
-     "price": 17.82,
+     "price": 18.06,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -363,16 +363,16 @@
       ],
       [
        "2026-11-05",
-       17.82
+       18.06
       ]
      ],
-     "value_gbp": 111.92,
-     "move_pct": 13.9
+     "value_gbp": 113.74,
+     "move_pct": 15.4
     },
     "RIG": {
      "shares": 23.58229584,
      "entry_price": 5.62,
-     "price": 5.2,
+     "price": 5.09,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -446,11 +446,11 @@
       ],
       [
        "2026-11-05",
-       5.2
+       5.09
       ]
      ],
-     "value_gbp": 90.94,
-     "move_pct": -7.5
+     "value_gbp": 89.27,
+     "move_pct": -9.4
     }
    },
    "ledger": [
@@ -503,7 +503,7 @@
     "TSM": {
      "shares": 0.32120526,
      "entry_price": 412.61,
-     "price": 357.97,
+     "price": 352.03,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -580,16 +580,16 @@
       ],
       [
        "2026-11-05",
-       357.97
+       352.03
       ]
      ],
-     "value_gbp": 85.27,
-     "move_pct": -13.2
+     "value_gbp": 84.09,
+     "move_pct": -14.7
     },
     "PRAX": {
      "shares": 0.54819864,
      "entry_price": 241.76,
-     "price": 266.3,
+     "price": 262.59,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -664,16 +664,16 @@
       ],
       [
        "2026-11-05",
-       266.3
+       262.59
       ]
      ],
-     "value_gbp": 108.27,
-     "move_pct": 10.2
+     "value_gbp": 107.05,
+     "move_pct": 8.6
     },
     "CYTK": {
      "shares": 2.13934629,
      "entry_price": 61.95,
-     "price": 54.61,
+     "price": 55.55,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -748,16 +748,16 @@
       ],
       [
        "2026-11-05",
-       54.61
+       55.55
       ]
      ],
-     "value_gbp": 86.64,
-     "move_pct": -11.8
+     "value_gbp": 88.38,
+     "move_pct": -10.3
     },
     "RARE": {
      "shares": 9.11502769,
      "entry_price": 14.54,
-     "price": 16.14,
+     "price": 15.57,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -832,16 +832,16 @@
       ],
       [
        "2026-11-05",
-       16.14
+       15.57
       ]
      ],
-     "value_gbp": 109.1,
-     "move_pct": 11.0
+     "value_gbp": 105.54,
+     "move_pct": 7.1
     },
     "NVDA": {
      "shares": 0.66227388,
      "entry_price": 217.94,
-     "price": 182.9996,
+     "price": 181.6,
      "entry_date": "2026-10-28",
      "cost_gbp": 108.319169,
      "buyers": [
@@ -883,11 +883,11 @@
       ],
       [
        "2026-11-05",
-       182.9996
+       181.6
       ]
      ],
-     "value_gbp": 89.88,
-     "move_pct": -16.0
+     "value_gbp": 89.44,
+     "move_pct": -16.7
     }
    },
    "ledger": [
@@ -957,7 +957,7 @@
     "SPY": {
      "shares": 0.86821161,
      "entry_price": 763.25,
-     "price": 738.365,
+     "price": 733.15,
      "entry_date": "2026-10-18",
      "cost_gbp": 500.0,
      "buyers": [],
@@ -1029,11 +1029,11 @@
       ],
       [
        "2026-11-05",
-       738.365
+       733.15
       ]
      ],
-     "value_gbp": 475.42,
-     "move_pct": -3.3
+     "value_gbp": 473.37,
+     "move_pct": -3.9
     }
    },
    "ledger": [
@@ -1147,9 +1147,9 @@
   },
   {
    "date": "2026-11-05",
-   "copy": 470.54,
-   "filtered": 479.17,
-   "sp500": 475.42
+   "copy": 469.16,
+   "filtered": 474.5,
+   "sp500": 473.37
   }
  ],
  "archived": [
@@ -1164,7 +1164,7 @@
    }
   }
  ],
- "fx_gbpusd": 1.3483994007110596,
+ "fx_gbpusd": 1.3446824550628662,
  "replaced": [
   {
    "rules_version": 2,
