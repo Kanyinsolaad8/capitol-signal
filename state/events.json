@@ -1,12 +1,21 @@
 {
- "mode": "mark",
- "date": "2026-11-05",
- "events": [],
+ "mode": "daily",
+ "date": "2026-11-06",
+ "events": [
+  {
+   "strategy": "filtered",
+   "action": "SELL",
+   "ticker": "RARE",
+   "gbp": 105.64,
+   "pnl_pct": 5.6,
+   "reason": "Analysts turning negative: 5 downgrades or target cuts in 30 days"
+  }
+ ],
  "latest": {
-  "date": "2026-11-05",
-  "copy": 469.16,
-  "filtered": 474.5,
-  "sp500": 473.37
+  "date": "2026-11-06",
+  "copy": 478.85,
+  "filtered": 490.18,
+  "sp500": 481.67
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
