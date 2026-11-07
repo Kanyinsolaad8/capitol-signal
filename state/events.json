@@ -1,12 +1,12 @@
 {
- "mode": "mark",
- "date": "2026-11-06",
+ "mode": "weekly",
+ "date": "2026-11-07",
  "events": [],
  "latest": {
-  "date": "2026-11-06",
-  "copy": 475.63,
-  "filtered": 489.96,
-  "sp500": 479.97
+  "date": "2026-11-07",
+  "copy": 469.58,
+  "filtered": 485.58,
+  "sp500": 474.42
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
