@@ -1,28 +1,12 @@
 {
- "mode": "daily",
+ "mode": "mark",
  "date": "2026-11-09",
- "events": [
-  {
-   "strategy": "filtered",
-   "action": "SELL",
-   "ticker": "NVDA",
-   "gbp": 87.43,
-   "pnl_pct": -19.3,
-   "reason": "Stop-loss: -19% from entry"
-  },
-  {
-   "strategy": "filtered",
-   "action": "BUY",
-   "ticker": "BHE",
-   "gbp": 96.53,
-   "reason": "Political link 2/3, data 4/7, strong buy, 34% to target"
-  }
- ],
+ "events": [],
  "latest": {
   "date": "2026-11-09",
-  "copy": 489.77,
-  "filtered": 495.93,
-  "sp500": 486.63
+  "copy": 491.02,
+  "filtered": 509.09,
+  "sp500": 487.6
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
