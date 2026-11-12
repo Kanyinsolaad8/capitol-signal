@@ -1,12 +1,20 @@
 {
- "mode": "mark",
- "date": "2026-11-11",
- "events": [],
+ "mode": "daily",
+ "date": "2026-11-12",
+ "events": [
+  {
+   "strategy": "filtered",
+   "action": "BUY",
+   "ticker": "META",
+   "gbp": 96.53,
+   "reason": "Political link 1/3, data 5/7, strong buy, 36% to target"
+  }
+ ],
  "latest": {
-  "date": "2026-11-11",
-  "copy": 507.39,
-  "filtered": 532.41,
-  "sp500": 497.0
+  "date": "2026-11-12",
+  "copy": 505.58,
+  "filtered": 523.21,
+  "sp500": 497.84
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
