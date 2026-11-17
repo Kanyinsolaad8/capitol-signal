@@ -1,12 +1,21 @@
 {
- "mode": "mark",
- "date": "2026-11-16",
- "events": [],
+ "mode": "daily",
+ "date": "2026-11-17",
+ "events": [
+  {
+   "strategy": "filtered",
+   "action": "SELL",
+   "ticker": "CYTK",
+   "gbp": 83.19,
+   "pnl_pct": -16.8,
+   "reason": "Stop-loss: -17% from entry"
+  }
+ ],
  "latest": {
-  "date": "2026-11-16",
-  "copy": 488.35,
-  "filtered": 497.42,
-  "sp500": 487.25
+  "date": "2026-11-17",
+  "copy": 484.03,
+  "filtered": 485.52,
+  "sp500": 479.41
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
