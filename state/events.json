@@ -1,20 +1,12 @@
 {
- "mode": "daily",
+ "mode": "mark",
  "date": "2026-11-18",
- "events": [
-  {
-   "strategy": "filtered",
-   "action": "BUY",
-   "ticker": "IBKR",
-   "gbp": 83.19,
-   "reason": "Political link 1/3, data 4/7, buy, 36% to target"
-  }
- ],
+ "events": [],
  "latest": {
   "date": "2026-11-18",
-  "copy": 479.85,
-  "filtered": 489.41,
-  "sp500": 481.48
+  "copy": 479.28,
+  "filtered": 490.92,
+  "sp500": 483.66
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
