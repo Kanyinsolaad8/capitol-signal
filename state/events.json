@@ -1,12 +1,28 @@
 {
- "mode": "mark",
- "date": "2026-11-18",
- "events": [],
+ "mode": "daily",
+ "date": "2026-11-19",
+ "events": [
+  {
+   "strategy": "filtered",
+   "action": "SELL",
+   "ticker": "BHE",
+   "gbp": 96.53,
+   "pnl_pct": -0.0,
+   "reason": "Analysts cut to none"
+  },
+  {
+   "strategy": "filtered",
+   "action": "BUY",
+   "ticker": "MSFT",
+   "gbp": 96.53,
+   "reason": "Political link 2/3, data 7/7, strong buy, 24% to target"
+  }
+ ],
  "latest": {
-  "date": "2026-11-18",
-  "copy": 478.04,
-  "filtered": 489.73,
-  "sp500": 482.01
+  "date": "2026-11-19",
+  "copy": 479.29,
+  "filtered": 498.0,
+  "sp500": 482.51
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
