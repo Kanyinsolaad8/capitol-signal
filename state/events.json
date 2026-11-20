@@ -1,21 +1,12 @@
 {
- "mode": "daily",
+ "mode": "mark",
  "date": "2026-11-20",
- "events": [
-  {
-   "strategy": "filtered",
-   "action": "SELL",
-   "ticker": "TSM",
-   "gbp": 80.54,
-   "pnl_pct": -19.5,
-   "reason": "Stop-loss: -20% from entry"
-  }
- ],
+ "events": [],
  "latest": {
   "date": "2026-11-20",
-  "copy": 457.69,
-  "filtered": 471.65,
-  "sp500": 468.58
+  "copy": 448.97,
+  "filtered": 467.32,
+  "sp500": 463.77
  },
  "start_gbp": 500.0,
  "start_date": "2026-10-18"
