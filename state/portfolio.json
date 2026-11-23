@@ -3,7 +3,7 @@
  "start_gbp": 500.0,
  "fx_fee": 0.0015,
  "slots": 5,
- "last_run": "2026-11-20",
+ "last_run": "2026-11-23",
  "rules_version": 3,
  "rules": "The \u00a3500 paper test. Two strategies side by side, plus the S&P 500 as the yardstick.\n\n  copy      Autopilot-style: copy freshly filed buys (biggest reported amounts first); sell only when a\n            politician who bought it files a sale.\n  filtered  Your version. Buy only when ALL of these hold:\n              - Political link >= 1 of 3 (several members bought, committee link, bill link)\n              - analysts rate it Buy or Strong Buy, and the mean target is >= 15% above the price\n              - Market checks >= 4 of 7 (consensus, upside, EPS growth, cheaper than peers, analyst\n                momentum, estimates rising, new US government contracts)\n              - results are not due within 7 days, and analysts are not turning negative\n            Sell when a buyer files a sale, analysts cut to Hold or worse, upside to target falls under 5%\n            (or the target is reached), analysts turn negative (2+ downgrades or target cuts in 30 days,\n            more than upgrades), or the price falls 15% below entry (stop-loss).\n  sp500     The same \u00a3500 put into the S&P 500 (SPY) on day one and left alone.\n\nPaper money only: nothing here connects to a broker. Each strategy models the same \u00a3500 so you can see which\none you'd rather have put your real \u00a3500 into. Cash is held in pounds; every buy and sell converts at that\nday's GBP/USD rate with a 0.15% currency fee (typical of UK app brokers). Fills use the latest closing price\nand fractional shares. 5 slots: each new buy uses the free cash divided by the empty slots.\n\nNote: on 28 Oct 2026 the political-link bar was lowered from 2 of 3 to 1 of 3, and buys that analysts are turning against were blocked. The test was replayed from day one (18 Oct) under these rules rather than restarted: each day used the previous close and only the filings known by then. Analyst data came from the 22 Oct run (with analyst actions dated after each day removed) and, for 28 Oct, from that day's run. Days 23 to 27 Oct, missed during the Senate website outage, were filled in the same way.",
  "seen_sources": [
@@ -47,13 +47,16 @@
   "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20036849.pdf",
   "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20036855.pdf",
   "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20036864.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20036883.pdf",
+  "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20036891.pdf",
   "https://efdsearch.senate.gov/search/view/ptr/02b5fe88-e8e1-4ef3-b6b5-6a46b420fb3c/",
   "https://efdsearch.senate.gov/search/view/ptr/06b7b716-bdc0-4c47-a4aa-96624e1e702c/",
   "https://efdsearch.senate.gov/search/view/ptr/21941188-c04d-4713-8e6f-d954918e93fd/",
   "https://efdsearch.senate.gov/search/view/ptr/7dfdae57-9401-4bf1-9059-85d1e5ee4a84/",
   "https://efdsearch.senate.gov/search/view/ptr/94c5f7b9-cdbc-40b4-aeba-de920da58588/",
   "https://efdsearch.senate.gov/search/view/ptr/a89c0c6b-4c12-4955-98f9-3a54ca52d8a3/",
-  "https://efdsearch.senate.gov/search/view/ptr/e67780bf-56e4-46f0-a81e-574a701dd539/"
+  "https://efdsearch.senate.gov/search/view/ptr/e67780bf-56e4-46f0-a81e-574a701dd539/",
+  "https://efdsearch.senate.gov/search/view/ptr/f0f7eba0-ca09-4b80-a97b-64b6dafb835e/"
  ],
  "strategies": {
   "copy": {
@@ -63,7 +66,7 @@
     "BHE": {
      "shares": 1.87669927,
      "entry_price": 70.62,
-     "price": 55.63,
+     "price": 60.265,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -198,15 +201,19 @@
       [
        "2026-11-22",
        55.63
+      ],
+      [
+       "2026-11-23",
+       60.265
       ]
      ],
-     "value_gbp": 79.81,
-     "move_pct": -21.2
+     "value_gbp": 86.82,
+     "move_pct": -14.7
     },
     "ON": {
      "shares": 1.84021803,
      "entry_price": 72.02,
-     "price": 60.84,
+     "price": 65.88,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -341,15 +348,19 @@
       [
        "2026-11-22",
        60.84
+      ],
+      [
+       "2026-11-23",
+       65.88
       ]
      ],
-     "value_gbp": 85.58,
-     "move_pct": -15.5
+     "value_gbp": 93.06,
+     "move_pct": -8.5
     },
     "CACI": {
      "shares": 0.21574206,
      "entry_price": 614.31,
-     "price": 587.81,
+     "price": 590.12,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -484,15 +495,19 @@
       [
        "2026-11-22",
        587.81
+      ],
+      [
+       "2026-11-23",
+       590.12
       ]
      ],
-     "value_gbp": 96.94,
-     "move_pct": -4.3
+     "value_gbp": 97.73,
+     "move_pct": -3.9
     },
     "OLN": {
      "shares": 8.46853052,
      "entry_price": 15.65,
-     "price": 15.19,
+     "price": 15.3,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -627,15 +642,19 @@
       [
        "2026-11-22",
        15.19
+      ],
+      [
+       "2026-11-23",
+       15.3
       ]
      ],
-     "value_gbp": 98.33,
-     "move_pct": -2.9
+     "value_gbp": 99.46,
+     "move_pct": -2.2
     },
     "RIG": {
      "shares": 23.58229584,
      "entry_price": 5.62,
-     "price": 4.64,
+     "price": 4.645,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -770,10 +789,14 @@
       [
        "2026-11-22",
        4.64
+      ],
+      [
+       "2026-11-23",
+       4.645
       ]
      ],
-     "value_gbp": 83.64,
-     "move_pct": -17.4
+     "value_gbp": 84.09,
+     "move_pct": -17.3
     }
    },
    "ledger": [
@@ -826,7 +849,7 @@
     "PRAX": {
      "shares": 0.54819864,
      "entry_price": 241.76,
-     "price": 300.43,
+     "price": 309.58,
      "entry_date": "2026-10-18",
      "cost_gbp": 100.0,
      "buyers": [
@@ -962,15 +985,19 @@
       [
        "2026-11-22",
        300.43
+      ],
+      [
+       "2026-11-23",
+       309.58
       ]
      ],
-     "value_gbp": 125.9,
-     "move_pct": 24.3
+     "value_gbp": 130.28,
+     "move_pct": 28.1
     },
     "META": {
      "shares": 0.20445598836469517,
      "entry_price": 623.64,
-     "price": 560.84,
+     "price": 597.5,
      "entry_date": "2026-11-12",
      "cost_gbp": 96.53365959032777,
      "buyers": [
@@ -1021,15 +1048,19 @@
       [
        "2026-11-22",
        560.84
+      ],
+      [
+       "2026-11-23",
+       597.5
       ]
      ],
-     "value_gbp": 87.65,
-     "move_pct": -10.1
+     "value_gbp": 93.78,
+     "move_pct": -4.2
     },
     "IBKR": {
      "shares": 1.4318519097897902,
      "entry_price": 76.3,
-     "price": 71.19,
+     "price": 76.455,
      "entry_date": "2026-11-18",
      "cost_gbp": 83.194351866778,
      "buyers": [
@@ -1059,15 +1090,19 @@
       [
        "2026-11-22",
        71.19
+      ],
+      [
+       "2026-11-23",
+       76.455
       ]
      ],
-     "value_gbp": 77.92,
-     "move_pct": -6.7
+     "value_gbp": 84.04,
+     "move_pct": 0.2
     },
     "MSFT": {
      "shares": 0.2455953107288891,
      "entry_price": 514.67,
-     "price": 484.52,
+     "price": 495.91,
      "entry_date": "2026-11-19",
      "cost_gbp": 96.53279822651994,
      "buyers": [
@@ -1096,10 +1131,14 @@
       [
        "2026-11-22",
        484.52
+      ],
+      [
+       "2026-11-23",
+       495.91
       ]
      ],
-     "value_gbp": 90.96,
-     "move_pct": -5.9
+     "value_gbp": 93.49,
+     "move_pct": -3.6
     }
    },
    "ledger": [
@@ -1246,7 +1285,7 @@
     "SPY": {
      "shares": 0.86821161,
      "entry_price": 763.25,
-     "price": 689.81,
+     "price": 721.26,
      "entry_date": "2026-10-18",
      "cost_gbp": 500.0,
      "buyers": [],
@@ -1379,10 +1418,14 @@
       [
        "2026-11-22",
        689.81
+      ],
+      [
+       "2026-11-23",
+       721.26
       ]
      ],
-     "value_gbp": 457.81,
-     "move_pct": -9.6
+     "value_gbp": 480.71,
+     "move_pct": -5.5
     }
    },
    "ledger": [
@@ -1589,6 +1632,12 @@
    "copy": 444.31,
    "filtered": 462.97,
    "sp500": 457.81
+  },
+  {
+   "date": "2026-11-23",
+   "copy": 461.17,
+   "filtered": 482.13,
+   "sp500": 480.71
   }
  ],
  "archived": [
@@ -1603,7 +1652,7 @@
    }
   }
  ],
- "fx_gbpusd": 1.3081814050674438,
+ "fx_gbpusd": 1.302677035331726,
  "replaced": [
   {
    "rules_version": 2,
@@ -1617,5 +1666,5 @@
    "note": "Replaced by a replay of the same period under version 3 rules on 28 Oct 2026"
   }
  ],
- "last_full_run": "2026-11-20"
+ "last_full_run": "2026-11-23"
 }
