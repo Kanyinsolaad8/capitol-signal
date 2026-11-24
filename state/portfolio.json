@@ -3,7 +3,7 @@
  "start_gbp": 500.0,
  "fx_fee": 0.0015,
  "slots": 5,
- "last_run": "2026-11-23",
+ "last_run": "2026-11-24",
  "rules_version": 3,
  "rules": "The \u00a3500 paper test. Two strategies side by side, plus the S&P 500 as the yardstick.\n\n  copy      Autopilot-style: copy freshly filed buys (biggest reported amounts first); sell only when a\n            politician who bought it files a sale.\n  filtered  Your version. Buy only when ALL of these hold:\n              - Political link >= 1 of 3 (several members bought, committee link, bill link)\n              - analysts rate it Buy or Strong Buy, and the mean target is >= 15% above the price\n              - Market checks >= 4 of 7 (consensus, upside, EPS growth, cheaper than peers, analyst\n                momentum, estimates rising, new US government contracts)\n              - results are not due within 7 days, and analysts are not turning negative\n            Sell when a buyer files a sale, analysts cut to Hold or worse, upside to target falls under 5%\n            (or the target is reached), analysts turn negative (2+ downgrades or target cuts in 30 days,\n            more than upgrades), or the price falls 15% below entry (stop-loss).\n  sp500     The same \u00a3500 put into the S&P 500 (SPY) on day one and left alone.\n\nPaper money only: nothing here connects to a broker. Each strategy models the same \u00a3500 so you can see which\none you'd rather have put your real \u00a3500 into. Cash is held in pounds; every buy and sell converts at that\nday's GBP/USD rate with a 0.15% currency fee (typical of UK app brokers). Fills use the latest closing price\nand fractional shares. 5 slots: each new buy uses the free cash divided by the empty slots.\n\nNote: on 28 Oct 2026 the political-link bar was lowered from 2 of 3 to 1 of 3, and buys that analysts are turning against were blocked. The test was replayed from day one (18 Oct) under these rules rather than restarted: each day used the previous close and only the filings known by then. Analyst data came from the 22 Oct run (with analyst actions dated after each day removed) and, for 28 Oct, from that day's run. Days 23 to 27 Oct, missed during the Senate website outage, were filled in the same way.",
  "seen_sources": [
@@ -205,9 +205,13 @@
       [
        "2026-11-23",
        60.09
+      ],
+      [
+       "2026-11-24",
+       60.09
       ]
      ],
-     "value_gbp": 86.53,
+     "value_gbp": 86.44,
      "move_pct": -14.9
     },
     "ON": {
@@ -352,9 +356,13 @@
       [
        "2026-11-23",
        66.77
+      ],
+      [
+       "2026-11-24",
+       66.77
       ]
      ],
-     "value_gbp": 94.28,
+     "value_gbp": 94.19,
      "move_pct": -7.3
     },
     "CACI": {
@@ -499,9 +507,13 @@
       [
        "2026-11-23",
        590.34
+      ],
+      [
+       "2026-11-24",
+       590.34
       ]
      ],
-     "value_gbp": 97.72,
+     "value_gbp": 97.63,
      "move_pct": -3.9
     },
     "OLN": {
@@ -646,9 +658,13 @@
       [
        "2026-11-23",
        15.49
+      ],
+      [
+       "2026-11-24",
+       15.49
       ]
      ],
-     "value_gbp": 100.65,
+     "value_gbp": 100.55,
      "move_pct": -1.0
     },
     "RIG": {
@@ -793,9 +809,13 @@
       [
        "2026-11-23",
        4.69
+      ],
+      [
+       "2026-11-24",
+       4.69
       ]
      ],
-     "value_gbp": 84.86,
+     "value_gbp": 84.78,
      "move_pct": -16.5
     }
    },
@@ -989,9 +1009,13 @@
       [
        "2026-11-23",
        307.0
+      ],
+      [
+       "2026-11-24",
+       307.0
       ]
      ],
-     "value_gbp": 129.13,
+     "value_gbp": 129.01,
      "move_pct": 27.0
     },
     "META": {
@@ -1052,9 +1076,13 @@
       [
        "2026-11-23",
        597.6
+      ],
+      [
+       "2026-11-24",
+       597.6
       ]
      ],
-     "value_gbp": 93.75,
+     "value_gbp": 93.66,
      "move_pct": -4.2
     },
     "IBKR": {
@@ -1094,9 +1122,13 @@
       [
        "2026-11-23",
        76.47
+      ],
+      [
+       "2026-11-24",
+       76.47
       ]
      ],
-     "value_gbp": 84.01,
+     "value_gbp": 83.93,
      "move_pct": 0.2
     },
     "MSFT": {
@@ -1135,9 +1167,13 @@
       [
        "2026-11-23",
        492.5
+      ],
+      [
+       "2026-11-24",
+       492.5
       ]
      ],
-     "value_gbp": 92.81,
+     "value_gbp": 92.72,
      "move_pct": -4.3
     }
    },
@@ -1422,9 +1458,13 @@
       [
        "2026-11-23",
        722.29
+      ],
+      [
+       "2026-11-24",
+       722.29
       ]
      ],
-     "value_gbp": 481.16,
+     "value_gbp": 480.7,
      "move_pct": -5.4
     }
    },
@@ -1638,6 +1678,12 @@
    "copy": 464.03,
    "filtered": 480.23,
    "sp500": 481.16
+  },
+  {
+   "date": "2026-11-24",
+   "copy": 463.6,
+   "filtered": 479.86,
+   "sp500": 480.7
   }
  ],
  "archived": [
@@ -1652,7 +1698,7 @@
    }
   }
  ],
- "fx_gbpusd": 1.3033220767974854,
+ "fx_gbpusd": 1.3045463562011719,
  "replaced": [
   {
    "rules_version": 2,
@@ -1666,5 +1712,5 @@
    "note": "Replaced by a replay of the same period under version 3 rules on 28 Oct 2026"
   }
  ],
- "last_full_run": "2026-11-23"
+ "last_full_run": "2026-11-24"
 }
